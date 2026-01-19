@@ -1164,7 +1164,7 @@ function updateExportButtonState() {
   // ======================
   // ★ページ分割（通常/ロング両対応）
   //   - maxPages: 通常は4、ロングはInfinity
-  //   - height: wrapper高さ（通常844 / ロング2800など）
+  //   - height: wrapper高さ（通常844 / ロング2000など）
   //   - reserveLastPagePx: 最終ページ（通常4枚目）の下側に確保する予約領域（省略文言のため）
   // ======================
   function paginateBlocks({ exportArea, blocks, bg, colorName, totalCount, shareUrl, maxPages, height, reserveLastPagePx = 0 }) {
@@ -1435,7 +1435,7 @@ function updateExportButtonState() {
         totalCount,
         shareUrl,
         maxPages: Infinity,
-        height: 2800
+        height: 2000
       });
       pages = long.pages;
       suppressedCount = 0;
@@ -1566,6 +1566,7 @@ function updateExportButtonState() {
   });
 
 });
+
 
 
 
