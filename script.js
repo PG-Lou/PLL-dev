@@ -981,11 +981,21 @@ function updateExportButtonState() {
   }
 
   function fits(container, testEl, maxHeightPx) {
+    // scrollHeight は最小でも clientHeight になってしまい、
+    // 「予約領域のため maxHeight を小さくする」方式だと常に false になることがある。
+    // なので、追加した要素の「下端位置」で判定する。
     container.appendChild(testEl);
-    const ok = container.scrollHeight <= maxHeightPx + 0.5;
+
+    const cRect = container.getBoundingClientRect();
+    const tRect = testEl.getBoundingClientRect();
+    const bottom = tRect.bottom - cRect.top;
+
+    const ok = bottom <= maxHeightPx + 0.5;
+
     container.removeChild(testEl);
     return ok;
   }
+
 
 
 
@@ -1453,9 +1463,7 @@ function updateExportButtonState() {
     const urls = [];
 
     try {
-      showBusy('画像を生成中…');
-
-      for (let i = 0; i < pages.length; i++) {
+            for (let i = 0; i < pages.length; i++) {
         const p = pages[i];
         const canvas = await html2canvas(p.wrapper, { scale: 2 });
 
@@ -1465,8 +1473,6 @@ function updateExportButtonState() {
         const url = URL.createObjectURL(blob);
         urls.push(url);
       }
-    } finally {
-      hideBusy();
     }
 
     exportArea.innerHTML = '';
