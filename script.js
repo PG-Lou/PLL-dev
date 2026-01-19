@@ -801,9 +801,9 @@ function updateExportButtonState() {
     return blocks;
   }
 
-  function createExportWrapper({ bg, colorName, totalCount, pageIndex, pageCount, shareUrl }) {
+  function createExportWrapper({ bg, colorName, totalCount, pageIndex, pageCount, shareUrl, height }) {
     const WIDTH = 390;
-    const HEIGHT = 844;
+    const HEIGHT = Number.isFinite(height) ? Math.max(300, Math.floor(height)) : 844;
 
     const wrapper = document.createElement('div');
     wrapper.style.width = WIDTH + 'px';
@@ -987,10 +987,286 @@ function updateExportButtonState() {
     return ok;
   }
 
-  async function exportImage() {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
 
+
+  // ======================
+  // ★出力方式選択モーダル（4枚に収まらない時だけ表示）
+  //   - OKはラジオ選択までdisabled
+  //   - OK: 'normal' or 'long'
+  //   - Cancel/Esc/背景クリック: null
+  // ======================
+  function askExportModeIfNeeded() {
+    return new Promise((resolve) => {
+      const overlay = document.createElement('div');
+      overlay.style.position = 'fixed';
+      overlay.style.inset = '0';
+      overlay.style.background = 'rgba(0,0,0,0.45)';
+      overlay.style.display = 'flex';
+      overlay.style.alignItems = 'center';
+      overlay.style.justifyContent = 'center';
+      overlay.style.padding = '16px';
+      overlay.style.zIndex = '9999';
+
+      const panel = document.createElement('div');
+      panel.setAttribute('role', 'dialog');
+      panel.setAttribute('aria-modal', 'true');
+      panel.style.width = 'min(420px, 100%)';
+      panel.style.background = '#fff';
+      panel.style.borderRadius = '14px';
+      panel.style.boxShadow = '0 10px 30px rgba(0,0,0,0.25)';
+      panel.style.padding = '14px 14px 12px';
+      panel.style.fontFamily = '-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif';
+
+      const title = document.createElement('div');
+      title.textContent = '出力数が多いため、以下どちらか選択してください';
+      title.style.fontSize = '14px';
+      title.style.fontWeight = '700';
+      title.style.marginBottom = '12px';
+      panel.appendChild(title);
+
+      const form = document.createElement('div');
+      form.style.display = 'grid';
+      form.style.gap = '10px';
+      form.style.marginBottom = '14px';
+
+      const mkRadio = (value, labelText) => {
+        const label = document.createElement('label');
+        label.style.display = 'flex';
+        label.style.alignItems = 'flex-start';
+        label.style.gap = '10px';
+        label.style.cursor = 'pointer';
+
+        const r = document.createElement('input');
+        r.type = 'radio';
+        r.name = 'pgll_export_mode';
+        r.value = value;
+        r.style.marginTop = '2px';
+
+        const text = document.createElement('div');
+        text.textContent = labelText;
+        text.style.fontSize = '13px';
+        text.style.lineHeight = '1.35';
+
+        label.appendChild(r);
+        label.appendChild(text);
+        return { label, radio: r };
+      };
+
+      const a = mkRadio('normal', '通常サイズで4枚出力、入らない分は省略');
+      const b = mkRadio('long', 'ロングサイズで全公演出力');
+      form.appendChild(a.label);
+      form.appendChild(b.label);
+      panel.appendChild(form);
+
+      const btnRow = document.createElement('div');
+      btnRow.style.display = 'flex';
+      btnRow.style.gap = '10px';
+      btnRow.style.justifyContent = 'flex-end';
+
+      const cancelBtn = document.createElement('button');
+      cancelBtn.type = 'button';
+      cancelBtn.textContent = 'キャンセル';
+      cancelBtn.style.padding = '9px 12px';
+      cancelBtn.style.borderRadius = '10px';
+      cancelBtn.style.border = '1px solid rgba(0,0,0,0.2)';
+      cancelBtn.style.background = '#fff';
+      cancelBtn.style.fontSize = '13px';
+
+      const okBtn = document.createElement('button');
+      okBtn.type = 'button';
+      okBtn.textContent = 'OK';
+      okBtn.disabled = true; // ★ラジオ選択まで非活性
+      okBtn.style.padding = '9px 14px';
+      okBtn.style.borderRadius = '10px';
+      okBtn.style.border = 'none';
+      okBtn.style.background = '#111';
+      okBtn.style.color = '#fff';
+      okBtn.style.fontSize = '13px';
+      okBtn.style.fontWeight = '700';
+      okBtn.style.opacity = '0.55';
+
+      const syncOk = () => {
+        const chosen = overlay.querySelector('input[name="pgll_export_mode"]:checked');
+        okBtn.disabled = !chosen;
+        okBtn.style.opacity = okBtn.disabled ? '0.55' : '1';
+      };
+      a.radio.addEventListener('change', syncOk);
+      b.radio.addEventListener('change', syncOk);
+
+      const close = (val) => {
+        document.removeEventListener('keydown', onKey);
+        overlay.remove();
+        document.body.style.overflow = '';
+        resolve(val);
+      };
+
+      const onKey = (e) => {
+        if (e.key === 'Escape') close(null);
+      };
+
+      overlay.addEventListener('click', (e) => {
+        // 背景クリックでキャンセル
+        if (e.target === overlay) close(null);
+      });
+
+      cancelBtn.addEventListener('click', () => close(null));
+      okBtn.addEventListener('click', () => {
+        const chosen = overlay.querySelector('input[name="pgll_export_mode"]:checked');
+        close(chosen ? chosen.value : null);
+      });
+
+      btnRow.appendChild(cancelBtn);
+      btnRow.appendChild(okBtn);
+      panel.appendChild(btnRow);
+
+      overlay.appendChild(panel);
+      document.body.appendChild(overlay);
+      document.body.style.overflow = 'hidden';
+
+      document.addEventListener('keydown', onKey);
+
+      // 初期フォーカス
+      try { (a.radio).focus(); } catch (_) {}
+    });
+  }
+
+  // ======================
+  // ★省略表示（他X公演参戦済み）を「白カード内」に確実に出す
+  //   - 4枚目（最後のページ）だけ、あらかじめ表示領域を予約して溢れないようにする
+  //   - 省略が無い場合は表示しない（予約分だけ少し余白が増える）
+  // ======================
+  function addSuppressedNoteIntoContent(content, suppressedCount) {
+    if (!content || !suppressedCount || suppressedCount <= 0) return;
+
+    const note = document.createElement('div');
+    note.textContent = `他${suppressedCount}公演参戦済み`;
+    note.style.marginTop = '10px';
+    note.style.fontSize = '13px';
+    note.style.fontWeight = '700';
+    note.style.lineHeight = '1.35';
+    note.style.opacity = '0.85';
+    note.style.color = '#111';
+    note.style.wordBreak = 'break-word';
+
+    content.appendChild(note);
+  }
+
+  // ======================
+  // ★ページ分割（通常/ロング両対応）
+  //   - maxPages: 通常は4、ロングはInfinity
+  //   - height: wrapper高さ（通常844 / ロング3800など）
+  //   - reserveLastPagePx: 最終ページ（通常4枚目）の下側に確保する予約領域（省略文言のため）
+  // ======================
+  function paginateBlocks({ exportArea, blocks, bg, colorName, totalCount, shareUrl, maxPages, height, reserveLastPagePx = 0 }) {
+    exportArea.innerHTML = '';
+
+    const pages = [];
+
+    const newPage = () => {
+      const p = createExportWrapper({ bg, colorName, totalCount, pageIndex: 1, pageCount: 1, shareUrl, height });
+      exportArea.appendChild(p.wrapper);
+      pages.push(p);
+      return p;
+    };
+
+    let page = newPage();
+
+    const getBaseMaxHeight = () => {
+      const h = page.content?.clientHeight;
+      if (h && h > 50) return h;
+      return page.content?.getBoundingClientRect?.().height || 716;
+    };
+
+    let baseMaxHeight = getBaseMaxHeight();
+
+    // 「最後のページ（通常4枚目）」だけ下側に予約領域を確保
+    const getEffectiveMaxHeight = () => {
+      const isLastAllowedPage = Number.isFinite(maxPages) && maxPages > 0 && pages.length >= maxPages;
+      return isLastAllowedPage ? Math.max(0, baseMaxHeight - reserveLastPagePx) : baseMaxHeight;
+    };
+
+    let suppressedCount = 0;
+    let suppressedStarted = false;
+
+    for (let bi = 0; bi < blocks.length; bi++) {
+      const block = blocks[bi];
+      let lineIdx = 0;
+      let isContinuation = false;
+
+      while (lineIdx < block.lines.length) {
+        if (suppressedStarted) break;
+
+        const headerText = '■ ' + block.live + (isContinuation ? '（続き）' : '');
+
+        const headerEl = makeHeaderEl(headerText);
+        const firstLineEl = makeLineEl(block.lines[lineIdx]);
+
+        if (page.content.childElementCount === 0) headerEl.style.marginTop = '0px';
+
+        const testWrap = document.createElement('div');
+        testWrap.appendChild(headerEl.cloneNode(true));
+        testWrap.appendChild(firstLineEl.cloneNode(true));
+
+        const effectiveMaxHeight = getEffectiveMaxHeight();
+        const canPutHeaderAndOne =
+          fits(page.content, testWrap, effectiveMaxHeight) || page.content.childElementCount === 0;
+
+        if (!canPutHeaderAndOne) {
+          // これ以上ページを増やせない → 省略開始
+          if (Number.isFinite(maxPages) && pages.length >= maxPages) {
+            suppressedStarted = true;
+            suppressedCount += (block.lines.length - lineIdx);
+            for (let bj = bi + 1; bj < blocks.length; bj++) suppressedCount += blocks[bj].lines.length;
+            break;
+          }
+
+          // 次ページへ
+          page = newPage();
+          baseMaxHeight = getBaseMaxHeight();
+          continue;
+        }
+
+        // ヘッダ確定
+        const realHeader = makeHeaderEl(headerText);
+        if (page.content.childElementCount === 0) realHeader.style.marginTop = '0px';
+        page.content.appendChild(realHeader);
+
+        // 行を詰める
+        while (lineIdx < block.lines.length) {
+          const lineEl = makeLineEl(block.lines[lineIdx]);
+          const ok = fits(page.content, lineEl, getEffectiveMaxHeight());
+          if (ok) {
+            page.content.appendChild(lineEl);
+            lineIdx++;
+          } else {
+            break;
+          }
+        }
+
+        // まだ残っている → 続き扱いで次ページへ
+        if (lineIdx < block.lines.length) {
+          isContinuation = true;
+
+          // これ以上ページを増やせない → 残りは省略
+          if (Number.isFinite(maxPages) && pages.length >= maxPages) {
+            suppressedStarted = true;
+            suppressedCount += (block.lines.length - lineIdx);
+            for (let bj = bi + 1; bj < blocks.length; bj++) suppressedCount += blocks[bj].lines.length;
+            break;
+          }
+
+          page = newPage();
+          baseMaxHeight = getBaseMaxHeight();
+        }
+      }
+
+      if (suppressedStarted) break;
+    }
+
+    return { pages, suppressedCount };
+  }
+
+  async function exportImage() {
     const items = getCheckedShowsInOrder();
     if (!items.length) return;
 
@@ -1016,119 +1292,66 @@ function updateExportButtonState() {
     // ★ここで復元用URLを生成（チェック＋名前＋Xを含む）
     const shareUrl = makeShareUrl();
 
-    const tmp = createExportWrapper({ bg, colorName, totalCount, pageIndex: 1, pageCount: 1, shareUrl });
-    exportArea.appendChild(tmp.wrapper);
+    // ======================
+    // 1) まず通常サイズでページ分割して、4枚に収まるか判定
+    // ======================
+    const normal = paginateBlocks({
+      exportArea,
+      blocks,
+      bg,
+      colorName,
+      totalCount,
+      shareUrl,
+      maxPages: 4,
+      height: 844,
+      // 4枚目に「他X公演参戦済み」を入れるための予約領域（溢れ防止）
+      reserveLastPagePx: 52
+    });
 
-    let maxHeight = tmp.content.clientHeight;
-    if (!maxHeight || maxHeight < 50) {
-      // HEIGHT 844 / card inset 52,44 / padding 16*2 → おおよそ 716
-      maxHeight = 716;
-    }
+    let mode = 'normal';
 
-    exportArea.innerHTML = '';
-
-    const pages = [];
-    let page = null;
-
-    const newPage = () => {
-      const p = createExportWrapper({ bg, colorName, totalCount, pageIndex: 1, pageCount: 1, shareUrl });
-      exportArea.appendChild(p.wrapper);
-      pages.push(p);
-      return p;
-    };
-
-    page = newPage();
-
-    let blockIndex = 0;
-    let suppressedCount = 0;
-    let suppressedStarted = false;
-
-    for (const block of blocks) {
-      blockIndex++;
-
-      let lineIdx = 0;
-      let isContinuation = false;
-
-      while (lineIdx < block.lines.length) {
-        if (suppressedStarted) break;
-
-        const headerText = '■ ' + block.live + (isContinuation ? '（続き）' : '');
-
-        const headerEl = makeHeaderEl(headerText);
-        const firstLineEl = makeLineEl(block.lines[lineIdx]);
-
-        if (page.content.childElementCount === 0) {
-          headerEl.style.marginTop = '0px';
-        }
-
-        const testWrap = document.createElement('div');
-        testWrap.appendChild(headerEl.cloneNode(true));
-        testWrap.appendChild(firstLineEl.cloneNode(true));
-
-        const canPutHeaderAndOne =
-          fits(page.content, testWrap, maxHeight) || page.content.childElementCount === 0;
-
-        if (!canPutHeaderAndOne) {
-          if (pages.length >= 4) {
-            suppressedStarted = true;
-            suppressedCount += (block.lines.length - lineIdx);
-            for (let b = blockIndex; b < blocks.length; b++) {
-              suppressedCount += blocks[b].lines.length;
-            }
-            break;
-          }
-
-          page = newPage();
-          continue;
-        }
-
-        const realHeader = makeHeaderEl(headerText);
-        if (page.content.childElementCount === 0) {
-          realHeader.style.marginTop = '0px';
-        }
-        page.content.appendChild(realHeader);
-
-        while (lineIdx < block.lines.length) {
-          const lineEl = makeLineEl(block.lines[lineIdx]);
-
-          if (fits(page.content, lineEl, maxHeight)) {
-            page.content.appendChild(lineEl);
-            lineIdx++;
-          } else {
-            break;
-          }
-        }
-
-        if (lineIdx < block.lines.length) {
-          isContinuation = true;
-
-          if (pages.length >= 4) {
-            suppressedStarted = true;
-            suppressedCount += (block.lines.length - lineIdx);
-            for (let b = blockIndex; b < blocks.length; b++) {
-              suppressedCount += blocks[b].lines.length;
-            }
-            break;
-          }
-
-          page = newPage();
-        }
+    if (normal.suppressedCount > 0) {
+      // 4枚に収まらない時だけ、出力方式を選択
+      const chosen = await askExportModeIfNeeded();
+      if (!chosen) {
+        // キャンセル
+        exportArea.innerHTML = '';
+        try { previewWin.close(); } catch (_) {}
+        return;
       }
-
-      if (suppressedStarted) break;
+      mode = chosen;
     }
 
-    if (suppressedCount > 0 && pages.length > 0) {
-      const last = pages[Math.min(3, pages.length - 1)];
-      const note = document.createElement('div');
-      note.textContent = `他${suppressedCount}公演参戦済み`;
-      note.style.marginTop = '10px';
-      note.style.fontSize = '13px';
-      note.style.fontWeight = '700';
-      note.style.opacity = '0.85';
-      last.content.appendChild(note);
+    // ======================
+    // 2) 選択に応じて、実際に描画するページを確定
+    // ======================
+    let pages = normal.pages;
+    let suppressedCount = normal.suppressedCount;
+
+    if (mode === 'long') {
+      // ロングサイズで全公演出力（省略なし）
+      // ※高さは 3800px（1080×3800サンプルの感覚）
+      const long = paginateBlocks({
+        exportArea,
+        blocks,
+        bg,
+        colorName,
+        totalCount,
+        shareUrl,
+        maxPages: Infinity,
+        height: 3800
+      });
+      pages = long.pages;
+      suppressedCount = 0;
     }
 
+    // ★省略がある場合は、最後のページに必ず表示（表示漏れ修正）
+    if (mode === 'normal' && suppressedCount > 0 && pages.length > 0) {
+      const last = pages[pages.length - 1];
+      addSuppressedNoteIntoContent(last.content, suppressedCount);
+    }
+
+    // バッジのページ番号更新
     const pageCount = pages.length;
     pages.forEach((p, i) => {
       const badge = p.wrapper.querySelector('div[style*="border-radius: 999px"]');
@@ -1137,6 +1360,9 @@ function updateExportButtonState() {
       }
     });
 
+    // ======================
+    // 3) 画像化してプレビュー表示
+    // ======================
     const urls = [];
 
     for (let i = 0; i < pages.length; i++) {
@@ -1155,9 +1381,9 @@ function updateExportButtonState() {
     if (urls.length) {
       openPreviewTab(urls, `pg-live-log_${pages.length}pages`, previewWin);
     } else {
-      // 生成できなかった場合は開いたタブを閉じる
       try { previewWin.close(); } catch (_) {}
     }
+
   }
 
   document.getElementById('export-btn')
