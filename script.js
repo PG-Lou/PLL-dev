@@ -1473,7 +1473,9 @@ function updateExportButtonState() {
         const url = URL.createObjectURL(blob);
         urls.push(url);
       }
-    }
+    } catch (err) {
+      console.error('画像生成エラー', err);
+      }
 
     exportArea.innerHTML = '';
 
@@ -1565,6 +1567,7 @@ function updateExportButtonState() {
   });
 
 });
+
 
 
 
