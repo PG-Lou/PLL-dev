@@ -1270,13 +1270,87 @@ function updateExportButtonState() {
     const items = getCheckedShowsInOrder();
     if (!items.length) return;
 
-    // ★ポップアップブロック対策：クリック直後に先にタブを開く
-    const previewWin = window.open('', '_blank');
-    try { previewWin && previewWin.focus && previewWin.focus(); } catch (_) {}
-    if (!previewWin) {
-      alert('ポップアップがブロックされました。ブラウザ設定で許可してください。');
-      return;
-    }
+    // ======================
+    // 描画中表示（くるくる）
+    // ======================
+    const showBusy = (msg) => {
+      let ov = document.getElementById('pgll-busy-overlay');
+      if (!ov) {
+        ov = document.createElement('div');
+        ov.id = 'pgll-busy-overlay';
+        ov.style.position = 'fixed';
+        ov.style.inset = '0';
+        ov.style.background = 'rgba(0,0,0,0.35)';
+        ov.style.display = 'flex';
+        ov.style.alignItems = 'center';
+        ov.style.justifyContent = 'center';
+        ov.style.zIndex = '10000';
+
+        const panel = document.createElement('div');
+        panel.style.background = '#fff';
+        panel.style.borderRadius = '14px';
+        panel.style.padding = '14px 16px';
+        panel.style.boxShadow = '0 10px 30px rgba(0,0,0,0.25)';
+        panel.style.display = 'flex';
+        panel.style.alignItems = 'center';
+        panel.style.gap = '12px';
+
+        const spinner = document.createElement('div');
+        spinner.style.width = '22px';
+        spinner.style.height = '22px';
+        spinner.style.border = '3px solid rgba(0,0,0,0.15)';
+        spinner.style.borderTopColor = 'rgba(0,0,0,0.75)';
+        spinner.style.borderRadius = '999px';
+        spinner.style.animation = 'pgllSpin 0.9s linear infinite';
+
+        const text = document.createElement('div');
+        text.id = 'pgll-busy-text';
+        text.style.fontSize = '13px';
+        text.style.fontWeight = '700';
+        text.style.color = '#111';
+        text.textContent = msg || '画像を生成中…';
+
+        const style = document.createElement('style');
+        style.textContent = '@keyframes pgllSpin{from{transform:rotate(0)}to{transform:rotate(360deg)}}';
+
+        panel.appendChild(spinner);
+        panel.appendChild(text);
+        ov.appendChild(panel);
+        ov.appendChild(style);
+        document.body.appendChild(ov);
+      }
+      const t = document.getElementById('pgll-busy-text');
+      if (t) t.textContent = msg || '画像を生成中…';
+      ov.hidden = false;
+      document.body.style.overflow = 'hidden';
+    };
+
+    const hideBusy = () => {
+      const ov = document.getElementById('pgll-busy-overlay');
+      if (ov) ov.hidden = true;
+      document.body.style.overflow = '';
+    };
+
+    const writePreviewLoading = (win) => {
+      if (!win) return;
+      try {
+        win.document.open();
+        win.document.write(`<!doctype html><html lang="ja"><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width,initial-scale=1" /><title>PG LIVE LOG</title><style>body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;background:#f2f4f8;} .wrap{max-width:420px;margin:0 auto;padding:16px;} .card{background:#fff;border-radius:14px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.10);} .row{display:flex;gap:12px;align-items:center;} .spin{width:22px;height:22px;border:3px solid rgba(0,0,0,0.15);border-top-color:rgba(0,0,0,0.75);border-radius:999px;animation:spin 0.9s linear infinite;} @keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}} .txt{font-size:13px;font-weight:700;color:#111;}</style></head><body><div class="wrap"><div class="card"><div class="row"><div class="spin"></div><div class="txt">画像を生成中…</div></div></div></div></body></html>`);
+        win.document.close();
+      } catch (_) {}
+    };
+
+    let previewWin = null;
+    const openPreviewWindow = () => {
+      const w = window.open('', '_blank');
+      try { w && w.focus && w.focus(); } catch (_) {}
+      if (!w) {
+        alert('ポップアップがブロックされました。ブラウザ設定で許可してください。');
+        return null;
+      }
+      writePreviewLoading(w);
+      return w;
+    };
 
     const bgSelect = document.getElementById('bg-select');
     const bg = bgSelect.value;
@@ -1316,10 +1390,23 @@ function updateExportButtonState() {
       if (!chosen) {
         // キャンセル
         exportArea.innerHTML = '';
-        try { previewWin.close(); } catch (_) {}
         return;
       }
       mode = chosen;
+
+      // ★モーダルOK押下後に別ウインドウを開く（気づかない対策）
+      previewWin = openPreviewWindow();
+      if (!previewWin) {
+        exportArea.innerHTML = '';
+        return;
+      }
+    } else {
+      // 4枚に収まる場合は、従来通りクリック直後に開く（ポップアップブロック対策）
+      previewWin = openPreviewWindow();
+      if (!previewWin) {
+        exportArea.innerHTML = '';
+        return;
+      }
     }
 
     // ======================
@@ -1365,15 +1452,21 @@ function updateExportButtonState() {
     // ======================
     const urls = [];
 
-    for (let i = 0; i < pages.length; i++) {
-      const p = pages[i];
-      const canvas = await html2canvas(p.wrapper, { scale: 2 });
+    try {
+      showBusy('画像を生成中…');
 
-      const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
-      if (!blob) continue;
+      for (let i = 0; i < pages.length; i++) {
+        const p = pages[i];
+        const canvas = await html2canvas(p.wrapper, { scale: 2 });
 
-      const url = URL.createObjectURL(blob);
-      urls.push(url);
+        const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+        if (!blob) continue;
+
+        const url = URL.createObjectURL(blob);
+        urls.push(url);
+      }
+    } finally {
+      hideBusy();
     }
 
     exportArea.innerHTML = '';
@@ -1381,7 +1474,7 @@ function updateExportButtonState() {
     if (urls.length) {
       openPreviewTab(urls, `pg-live-log_${pages.length}pages`, previewWin);
     } else {
-      try { previewWin.close(); } catch (_) {}
+      try { previewWin && previewWin.close(); } catch (_) {}
     }
 
   }
