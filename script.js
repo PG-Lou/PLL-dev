@@ -742,7 +742,7 @@ function updateExportButtonState() {
     .btn { flex: 1 1 auto; padding: 12px 12px; border-radius: 12px; border: none; font-size: 14px; font-weight: 800; }
     .btnPrimary { background: #111; color: #fff; }
     .btnPrimary[disabled] { opacity: 0.55; }
-    .msg { font-size: 12px; color: rgba(0,0,0,0.55); margin: 0 0 12px; }
+     .msg { font-size: 13px; color: rgba(0,0,0,0.55); margin: 0 0 12px; }
     .imgbox { background: #fff; border-radius: 14px; padding: 10px; box-shadow: 0 6px 18px rgba(0,0,0,0.10); margin-bottom: 14px; }
     img { width: 100%; height: auto; display: block; border-radius: 10px; }
   </style>
@@ -798,6 +798,7 @@ function updateExportButtonState() {
 
         if (!navigator.canShare || !navigator.canShare({ files })) {
           msg.textContent = 'この端末では「まとめて保存」が使えません。下の画像を長押しして保存してください。';
+          alert('この端末では「まとめて保存」に対応していません。\n下の画像を1枚ずつ保存してください。');
           btn.hidden = true;
           return;
         }
@@ -816,6 +817,7 @@ function updateExportButtonState() {
           msg.textContent = '共有をキャンセルしました。下の画像を長押しして保存もできます。';
         } else {
           msg.textContent = '共有に失敗しました。下の画像を長押しして保存してください。';
+          alert('「まとめて保存」でエラーが発生しました。\nこの端末では対応していない可能性があります。\n下の画像を1枚ずつ保存してください。');
         }
       } finally {
         btn.disabled = false;
