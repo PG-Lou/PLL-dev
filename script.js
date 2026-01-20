@@ -707,7 +707,12 @@ function updateExportButtonState() {
   // ======================
   // 画像出力（分割対応）
   // ======================
-  function openPreviewTab(imageUrls, title, w) {
+  // ======================
+  // プレビュー（別ウィンドウ）
+  //  - 画像プレビュー
+  //  - 対応端末では「まとめて保存（共有シート）」ボタンを表示
+  // ======================
+  function openPreviewTab(imageUrls, fileNames, title, w) {
     const win = w || window.open('', '_blank');
     try { win && win.focus && win.focus(); } catch (_) {}
     if (!win) {
@@ -717,6 +722,9 @@ function updateExportButtonState() {
 
     const safeTitle = title || 'PG LIVE LOG export preview';
     const safeUrls = imageUrls.map(u => String(u));
+    const safeNames = Array.isArray(fileNames) && fileNames.length
+      ? fileNames.map(n => String(n))
+      : safeUrls.map((_, i) => `pg-live-log_${String(i + 1).padStart(2, '0')}.png`);
 
     win.document.open();
     win.document.write(`
@@ -730,12 +738,21 @@ function updateExportButtonState() {
     body { margin: 0; padding: 16px; font-family: -apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif; background: #f2f4f8; }
     .wrap { max-width: 420px; margin: 0 auto; }
     .hint { font-size: 13px; color: rgba(0,0,0,0.65); margin: 0 0 12px; }
+    .actions { display: flex; gap: 10px; margin: 0 0 12px; }
+    .btn { flex: 1 1 auto; padding: 12px 12px; border-radius: 12px; border: none; font-size: 14px; font-weight: 800; }
+    .btnPrimary { background: #111; color: #fff; }
+    .btnPrimary[disabled] { opacity: 0.55; }
+    .msg { font-size: 12px; color: rgba(0,0,0,0.55); margin: 0 0 12px; }
     .imgbox { background: #fff; border-radius: 14px; padding: 10px; box-shadow: 0 6px 18px rgba(0,0,0,0.10); margin-bottom: 14px; }
     img { width: 100%; height: auto; display: block; border-radius: 10px; }
   </style>
 </head>
 <body>
   <div class="wrap">
+    <div class="actions">
+      <button id="shareBtn" class="btn btnPrimary" type="button" hidden>まとめて保存（共有）</button>
+    </div>
+    <p id="shareMsg" class="msg" hidden></p>
     <p class="hint">画像を長押し/右クリックで保存できます（端末/ブラウザによって表記が違います）。</p>
     ${safeUrls.map((u, i) => `
       <div class="imgbox">
@@ -745,8 +762,81 @@ function updateExportButtonState() {
   </div>
 
   <script>
+    const urls = ${JSON.stringify(safeUrls)};
+    const names = ${JSON.stringify(safeNames)};
+
+    function canShareFiles() {
+      try {
+        if (!navigator.share) return false;
+        if (!navigator.canShare) return false;
+        const f = new File([new Blob([''], { type: 'image/png' })], 'a.png', { type: 'image/png' });
+        return navigator.canShare({ files: [f] });
+      } catch (e) {
+        return false;
+      }
+    }
+
+    async function shareAll() {
+      const btn = document.getElementById('shareBtn');
+      const msg = document.getElementById('shareMsg');
+      if (!btn || !msg) return;
+
+      btn.disabled = true;
+      btn.textContent = '準備中…';
+      msg.hidden = false;
+      msg.textContent = '共有の準備中…（端末によっては少し時間がかかります）';
+
+      try {
+        const files = [];
+        for (let i = 0; i < urls.length; i++) {
+          const u = urls[i];
+          const res = await fetch(u);
+          const blob = await res.blob();
+          const name = names[i] || ('pg-live-log_' + String(i + 1).padStart(2, '0') + '.png');
+          files.push(new File([blob], name, { type: blob.type || 'image/png' }));
+        }
+
+        if (!navigator.canShare || !navigator.canShare({ files })) {
+          msg.textContent = 'この端末では「まとめて保存」が使えません。下の画像を長押しして保存してください。';
+          btn.hidden = true;
+          return;
+        }
+
+        await navigator.share({
+          files,
+          title: 'PG LIVE LOG',
+          text: '参戦履歴画像'
+        });
+
+        msg.textContent = '共有しました。写真アプリ等に保存してください。';
+      } catch (e) {
+        // キャンセル（AbortError）はエラー扱いにしない
+        const name = (e && e.name) ? e.name : '';
+        if (name === 'AbortError') {
+          msg.textContent = '共有をキャンセルしました。下の画像を長押しして保存もできます。';
+        } else {
+          msg.textContent = '共有に失敗しました。下の画像を長押しして保存してください。';
+        }
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'まとめて保存（共有）';
+      }
+    }
+
+    // 対応端末のみボタン表示
+    (function initShareUI(){
+      const btn = document.getElementById('shareBtn');
+      const msg = document.getElementById('shareMsg');
+      if (!btn || !msg) return;
+      if (canShareFiles()) {
+        btn.hidden = false;
+        btn.addEventListener('click', shareAll);
+        msg.hidden = false;
+        msg.textContent = '「まとめて保存」を押すと、端末の共有メニューが開きます（写真に追加など）。';
+      }
+    })();
+
     window.addEventListener('beforeunload', () => {
-      const urls = ${JSON.stringify(safeUrls)};
       urls.forEach(u => { try { URL.revokeObjectURL(u); } catch(e){} });
     });
   </script>
@@ -1435,7 +1525,7 @@ function updateExportButtonState() {
         totalCount,
         shareUrl,
         maxPages: Infinity,
-        height: 1600
+        height: 1400
       });
       pages = long.pages;
       suppressedCount = 0;
@@ -1460,9 +1550,11 @@ function updateExportButtonState() {
     // 3) 画像化してプレビュー表示
     // ======================
     const urls = [];
+    const fileNames = [];
 
     try {
-            for (let i = 0; i < pages.length; i++) {
+      const pad = String(pages.length).length >= 2 ? 2 : 2;
+      for (let i = 0; i < pages.length; i++) {
         const p = pages[i];
         const canvas = await html2canvas(p.wrapper, { scale: 2 });
 
@@ -1471,15 +1563,16 @@ function updateExportButtonState() {
 
         const url = URL.createObjectURL(blob);
         urls.push(url);
+        fileNames.push(`pg-live-log_${String(i + 1).padStart(pad, '0')}_of_${String(pages.length).padStart(pad, '0')}.png`);
       }
     } catch (err) {
       console.error('画像生成エラー', err);
-      }
+    }
 
     exportArea.innerHTML = '';
 
     if (urls.length) {
-      openPreviewTab(urls, `pg-live-log_${pages.length}pages`, previewWin);
+      openPreviewTab(urls, fileNames, `pg-live-log_${pages.length}pages`, previewWin);
     } else {
       try { previewWin && previewWin.close(); } catch (_) {}
     }
