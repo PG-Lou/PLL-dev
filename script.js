@@ -705,7 +705,7 @@ function updateExportButtonState() {
     .addEventListener('change', updateExportButtonState);
 
   // ======================
-  // ★イメージカラー追加（末尾に順番どおり追加）
+  // ★イメージカラー追加（末尾に順番どおり追加 / もやもや系）
   // ======================
   (function addMoreBgOptions(){
     const sel = document.getElementById('bg-select');
@@ -715,47 +715,93 @@ function updateExportButtonState() {
       // 下から順番に追加
       {
         label: 'はみだし御免',
-        // 濃いめのレッドオレンジ（炎っぽく）
-        value: 'linear-gradient(135deg, #ff2a00 0%, #ff5a00 45%, #ff9a00 100%)'
+        // 暗めのレッドオレンジ（炎っぽい“もや”）
+        value: [
+          'radial-gradient(circle at 18% 30%, rgba(255,140,30,0.28) 0%, rgba(255,140,30,0) 55%)',
+          'radial-gradient(circle at 70% 35%, rgba(255,60,0,0.22) 0%, rgba(255,60,0,0) 60%)',
+          'radial-gradient(circle at 45% 80%, rgba(255,210,120,0.14) 0%, rgba(255,210,120,0) 62%)',
+          'linear-gradient(135deg, #1f0000 0%, #3a1200 45%, #5a1f00 100%)'
+        ].join(',' )
       },
       {
         label: 'Zombies are standing out',
-        // 青〜オレンジのグラデーション
-        value: 'linear-gradient(135deg, #0066ff 0%, #2b9dff 35%, #ff7a00 100%)'
+        // 水色寄りの青〜オレンジ（もやもや）
+        value: [
+          'radial-gradient(circle at 22% 28%, rgba(160,255,255,0.28) 0%, rgba(160,255,255,0) 58%)',
+          'radial-gradient(circle at 72% 30%, rgba(80,210,255,0.22) 0%, rgba(80,210,255,0) 60%)',
+          'radial-gradient(circle at 82% 78%, rgba(255,170,80,0.26) 0%, rgba(255,170,80,0) 62%)',
+          'linear-gradient(135deg, #06142c 0%, #0a5f8f 45%, #a84800 100%)'
+        ].join(',' )
       },
       {
         label: 'ラック',
-        // グレー〜黒のグラデーション
-        value: 'linear-gradient(135deg, #6a6a6a 0%, #2f2f2f 55%, #000000 100%)'
+        // グレー〜黒（煙っぽい“もや”）
+        value: [
+          'radial-gradient(circle at 24% 26%, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0) 58%)',
+          'radial-gradient(circle at 74% 34%, rgba(0,0,0,0.22) 0%, rgba(0,0,0,0) 62%)',
+          'radial-gradient(circle at 46% 82%, rgba(120,120,120,0.18) 0%, rgba(120,120,120,0) 60%)',
+          'linear-gradient(135deg, #5e5e5e 0%, #2a2a2a 55%, #000000 100%)'
+        ].join(',' )
       },
       {
         label: 'ブレス',
-        // レインボー
-        value: 'linear-gradient(135deg, #ff004c 0%, #ff7a00 18%, #ffe600 36%, #18ff7a 54%, #00a3ff 72%, #7a00ff 90%, #ff00c8 100%)'
+        // レインボー（ただの虹グラデじゃなく、光の“もや”）
+        value: [
+          'radial-gradient(circle at 18% 28%, rgba(255,0,120,0.26) 0%, rgba(255,0,120,0) 58%)',
+          'radial-gradient(circle at 72% 26%, rgba(0,190,255,0.24) 0%, rgba(0,190,255,0) 58%)',
+          'radial-gradient(circle at 60% 74%, rgba(120,255,0,0.20) 0%, rgba(120,255,0,0) 62%)',
+          'radial-gradient(circle at 28% 80%, rgba(255,210,0,0.18) 0%, rgba(255,210,0,0) 62%)',
+          'radial-gradient(circle at 86% 70%, rgba(165,0,255,0.20) 0%, rgba(165,0,255,0) 62%)',
+          'linear-gradient(135deg, #240014 0%, #101a38 35%, #06281a 70%, #362100 100%)'
+        ].join(',' )
       },
       {
         label: '解放区',
-        // 夜空（濃紺 + 星のまたたきっぽい粒）
-        // ※静止画像なので「またたき」は表現としてドット散らし
+        // 夜空（濃紺 + 星 + うっすら星雲）
         value: [
-          'radial-gradient(circle at 12% 18%, rgba(255,255,255,0.95) 0 1px, rgba(255,255,255,0) 2px)',
-          'radial-gradient(circle at 78% 22%, rgba(255,255,255,0.85) 0 1px, rgba(255,255,255,0) 2px)',
-          'radial-gradient(circle at 58% 66%, rgba(255,255,255,0.80) 0 1px, rgba(255,255,255,0) 2px)',
-          'radial-gradient(circle at 22% 72%, rgba(255,255,255,0.75) 0 1px, rgba(255,255,255,0) 2px)',
-          'radial-gradient(circle at 88% 74%, rgba(255,255,255,0.70) 0 1px, rgba(255,255,255,0) 2px)',
-          'radial-gradient(circle at 42% 38%, rgba(255,255,255,0.65) 0 1px, rgba(255,255,255,0) 2px)',
-          'linear-gradient(180deg, #020b2a 0%, #061a4a 55%, #0a2b6a 100%)'
-        ].join(',')
+          // 星（小さめ多め）
+          'radial-gradient(circle at 8% 14%, rgba(255,255,255,0.95) 0 1px, rgba(255,255,255,0) 2px)',
+          'radial-gradient(circle at 16% 32%, rgba(255,255,255,0.80) 0 1px, rgba(255,255,255,0) 2px)',
+          'radial-gradient(circle at 28% 18%, rgba(255,255,255,0.70) 0 1px, rgba(255,255,255,0) 2px)',
+          'radial-gradient(circle at 34% 40%, rgba(255,255,255,0.85) 0 1px, rgba(255,255,255,0) 2px)',
+          'radial-gradient(circle at 42% 22%, rgba(255,255,255,0.65) 0 1px, rgba(255,255,255,0) 2px)',
+          'radial-gradient(circle at 52% 14%, rgba(255,255,255,0.90) 0 1px, rgba(255,255,255,0) 2px)',
+          'radial-gradient(circle at 60% 34%, rgba(255,255,255,0.75) 0 1px, rgba(255,255,255,0) 2px)',
+          'radial-gradient(circle at 68% 20%, rgba(255,255,255,0.60) 0 1px, rgba(255,255,255,0) 2px)',
+          'radial-gradient(circle at 76% 36%, rgba(255,255,255,0.88) 0 1px, rgba(255,255,255,0) 2px)',
+          'radial-gradient(circle at 84% 16%, rgba(255,255,255,0.72) 0 1px, rgba(255,255,255,0) 2px)',
+          'radial-gradient(circle at 90% 30%, rgba(255,255,255,0.85) 0 1px, rgba(255,255,255,0) 2px)',
+          'radial-gradient(circle at 12% 68%, rgba(255,255,255,0.78) 0 1px, rgba(255,255,255,0) 2px)',
+          'radial-gradient(circle at 22% 78%, rgba(255,255,255,0.62) 0 1px, rgba(255,255,255,0) 2px)',
+          'radial-gradient(circle at 36% 72%, rgba(255,255,255,0.90) 0 1px, rgba(255,255,255,0) 2px)',
+          'radial-gradient(circle at 48% 86%, rgba(255,255,255,0.74) 0 1px, rgba(255,255,255,0) 2px)',
+          'radial-gradient(circle at 62% 74%, rgba(255,255,255,0.66) 0 1px, rgba(255,255,255,0) 2px)',
+          'radial-gradient(circle at 74% 84%, rgba(255,255,255,0.82) 0 1px, rgba(255,255,255,0) 2px)',
+          'radial-gradient(circle at 88% 72%, rgba(255,255,255,0.70) 0 1px, rgba(255,255,255,0) 2px)',
+          // 星雲っぽい“もや”
+          'radial-gradient(circle at 30% 55%, rgba(120,160,255,0.10) 0%, rgba(120,160,255,0) 62%)',
+          'radial-gradient(circle at 70% 60%, rgba(190,120,255,0.08) 0%, rgba(190,120,255,0) 65%)',
+          'radial-gradient(circle at 55% 40%, rgba(255,220,120,0.06) 0%, rgba(255,220,120,0) 60%)',
+          // ベース夜空
+          'linear-gradient(180deg, #010818 0%, #04133a 55%, #061a4a 100%)'
+        ].join(',' )
       }
     ];
 
-    const exists = (label) => {
+    const getOpt = (label) => {
       const t = String(label || '').trim();
-      return Array.from(sel.options).some(o => (o.dataset.label || o.textContent || '').trim() === t);
+      return Array.from(sel.options).find(o => (o.dataset.label || o.textContent || '').trim() === t);
     };
 
     defs.forEach(d => {
-      if (exists(d.label)) return;
+      const ex = getOpt(d.label);
+      if (ex) {
+        // 既にある場合は“上書き”して最新の色味にする
+        ex.value = d.value;
+        ex.textContent = d.label;
+        ex.dataset.label = d.label;
+        return;
+      }
       const opt = document.createElement('option');
       opt.value = d.value;
       opt.textContent = d.label;
@@ -805,11 +851,6 @@ function updateExportButtonState() {
      .msg { font-size: 13px; color: rgba(0,0,0,0.55); margin: 0 0 12px; }
     .imgbox { background: #fff; border-radius: 14px; padding: 10px; box-shadow: 0 6px 18px rgba(0,0,0,0.10); margin-bottom: 14px; }
     img { width: 100%; height: auto; display: block; border-radius: 10px; }
-
-    /* PC(マウス操作)はWeb Shareが「無反応」になりがちなので、ボタンは最初から非表示 */
-    @media (hover:hover) and (pointer:fine) {
-      .actions { display: none; }
-    }
   </style>
 </head>
 <body>
@@ -830,18 +871,14 @@ function updateExportButtonState() {
     const urls = ${JSON.stringify(safeUrls)};
     const names = ${JSON.stringify(safeNames)};
 
-    // ===== 共有ボタン表示判定 =====
-    // PCは "押しても無反応" になりがちなので、最初から非表示にする。
-    // "スマホ + navigator.share がある" 場合だけ表示。
-    function isMobileShareCapable() {
+    // Web Share API の対応判定（ボタン表示用）
+    // NOTE: navigator.canShare({files}) は端末によって厳しめに false を返すことがあり、
+    // 「ボタンが出ない」原因になりがち。
+    // ここでは *ざっくり* 対応判定（navigator.share と File がある）で表示し、
+    // 実際の可否はクリック時に判定＆失敗時に案内する。
+    function canShowShareButton() {
       try {
-        // User-Agent Client Hints が使える場合はそれを優先
-        if (navigator.userAgentData && typeof navigator.userAgentData.mobile === 'boolean') {
-          return navigator.userAgentData.mobile && !!navigator.share;
-        }
-        const ua = navigator.userAgent || '';
-        const isMobile = /Android|iPhone|iPad|iPod/i.test(ua);
-        return isMobile && !!navigator.share;
+        return !!navigator.share && typeof File === 'function' && typeof Blob === 'function';
       } catch (e) {
         return false;
       }
@@ -864,65 +901,65 @@ function updateExportButtonState() {
       msg.textContent = '共有の準備中…（端末によっては少し時間がかかります）';
 
       try {
-        // 「押しても無反応」対策：準備〜共有までまとめてタイムアウト
-        // ※端末によっては share() が resolve/reject しないことがある
-        const WHOLE_TIMEOUT_MS = 12000;
-        const wholeTimeout = new Promise((_, reject) =>
-          setTimeout(() => reject(new Error('whole-timeout')), WHOLE_TIMEOUT_MS)
-        );
+        // ★まずはメイン画面から渡された File 配列を使う（fetch(blob:) が死ぬ端末対策）
+        let files = null;
+        try {
+          if (Array.isArray(window.__PGLL_EXPORT_FILES) && window.__PGLL_EXPORT_FILES.length) {
+            files = window.__PGLL_EXPORT_FILES;
+          }
+        } catch (e) {}
 
-        const task = (async () => {
-          // 画像のURLから Blob を取り出して File 化（fetchが固まる端末対策でAbortController）
-          const files = [];
-          const imgs = Array.from(document.querySelectorAll('img'));
-          const FETCH_TIMEOUT_MS = 4000;
-
+        // フォールバック：画像URLから Blob を取り出して File 化
+        if (!files) {
+          files = [];
           for (let i = 0; i < urls.length; i++) {
-            const src = (imgs[i] && (imgs[i].currentSrc || imgs[i].src)) ? (imgs[i].currentSrc || imgs[i].src) : urls[i];
-            const controller = (typeof AbortController !== 'undefined') ? new AbortController() : null;
-            const t = setTimeout(() => { try { controller && controller.abort(); } catch(e){} }, FETCH_TIMEOUT_MS);
+            const u = urls[i];
             let blob;
             try {
-              const res = await fetch(src, controller ? { signal: controller.signal } : undefined);
+              const res = await fetch(u);
               blob = await res.blob();
-            } finally {
-              clearTimeout(t);
+            } catch (e) {
+              const img = document.querySelectorAll('img')[i];
+              if (!img) throw e;
+              const res2 = await fetch(img.currentSrc || img.src);
+              blob = await res2.blob();
             }
             const name = names[i] || ('pg-live-log_' + String(i + 1).padStart(2, '0') + '.png');
             files.push(new File([blob], name, { type: blob.type || 'image/png' }));
           }
+        }
 
-          // files共有の可否をここで判定（falseなら即フォールバック案内）
+        // canShare は端末によって厳しめに false を返すが、files共有が無理な端末はここで弾く
+        try {
           if (navigator.canShare && !navigator.canShare({ files })) {
-            throw new Error('files-not-supported');
+            throw new Error('cannot-share-files');
           }
+        } catch (e) {
+          throw e;
+        }
 
-          // share() 自体の無反応対策：短めタイムアウト
-          const SHARE_TIMEOUT_MS = 2000;
-          let _shareTimer;
-          const sharePromise = navigator.share({ files, title: 'PG LIVE LOG', text: '参戦履歴画像' });
-          const shareTimeout = new Promise((_, reject) => {
-            _shareTimer = setTimeout(() => reject(new Error('share-timeout')), SHARE_TIMEOUT_MS);
-          });
-          await Promise.race([sharePromise, shareTimeout]).finally(() => {
-            if (_shareTimer) clearTimeout(_shareTimer);
-          });
-        })();
+        // Edge(PC)などで「黙って何も起きない」ケース対策：一定時間でタイムアウトしてフォールバック
+        const SHARE_TIMEOUT_MS = 8000;
+        let _shareTimer;
 
-        await Promise.race([task, wholeTimeout]);
+        const sharePromise = navigator.share({
+          files,
+          title: 'PG LIVE LOG',
+          text: '参戦履歴画像'
+        });
+        const timeoutPromise = new Promise((_, reject) => {
+          _shareTimer = setTimeout(() => reject(new Error('share-timeout')), SHARE_TIMEOUT_MS);
+        });
+
+        await Promise.race([sharePromise, timeoutPromise]).finally(() => {
+          if (_shareTimer) clearTimeout(_shareTimer);
+        });
 
         msg.textContent = '共有メニューを開きました。写真アプリ等に保存してください。';
       } catch (e) {
         const name = (e && e.name) ? e.name : '';
-        const msgText = (e && e.message) ? String(e.message) : '';
         if (name === 'AbortError') {
           msg.textContent = '共有をキャンセルしました。下の画像を長押しして保存もできます。';
-        } else if (msgText === 'files-not-supported') {
-          msg.textContent = 'この端末/ブラウザでは「まとめて保存（ファイル共有）」に対応していません。下の画像を1枚ずつ保存してください。';
-          alert('この端末/ブラウザでは「まとめて保存（共有）」に対応していません。\n下の画像を1枚ずつ保存してください。');
-        } else if (msgText === 'whole-timeout' || msgText === 'share-timeout') {
-          msg.textContent = '共有メニューが開けませんでした。下の画像を1枚ずつ保存してください。';
-          alert('共有メニューが開けませんでした（端末側の制限の可能性）。\n下の画像を1枚ずつ保存してください。');
         } else {
           msg.textContent = 'この端末では「まとめて保存」が使えない可能性があります。下の画像を1枚ずつ保存してください。';
           alert('「まとめて保存」でエラーが発生しました。\nこの端末では対応していない可能性があります。\n下の画像を1枚ずつ保存してください。');
@@ -933,21 +970,50 @@ function updateExportButtonState() {
       }
     }
 
-    // ボタンは「スマホのみ」表示（PCでは非表示）
+    // ボタンは「スマホっぽい端末」だけ表示（PCは非表示でOK）
     (function initShareUI(){
       const btn = document.getElementById('shareBtn');
       const msg = document.getElementById('shareMsg');
       if (!btn || !msg) return;
 
-      if (!isMobileShareCapable()) {
-        // ★PC/非対応端末はボタンを消して、1枚ずつ保存案内に寄せる
+      const ua = String(navigator.userAgent || '');
+      const isMobile = /Android|iPhone|iPad|iPod/i.test(ua);
+
+      if (!isMobile) {
+        // PCは共有ボタンを出さない
         btn.style.display = 'none';
-        msg.textContent = '画像を長押し/右クリックで保存してください。';
+        msg.textContent = '画像を右クリックで保存してください。';
         return;
       }
 
-      btn.addEventListener('click', shareAll);
+      // 共有機能そのものが無い端末
+      if (!navigator.share) {
+        btn.style.display = 'none';
+        msg.textContent = 'この端末では「まとめて保存」が使えません。下の画像を長押しして保存してください。';
+        return;
+      }
+
+      // iOSで click が飛ばない/遅延することがあるので touchend も拾う
+      const handler = (e) => {
+        try {
+          if (e) {
+            e.preventDefault && e.preventDefault();
+            e.stopPropagation && e.stopPropagation();
+          }
+        } catch (_) {}
+        shareAll();
+      };
+
+      btn.onclick = handler;
+      try { btn.addEventListener('click', handler, { passive: false }); } catch (_) { btn.addEventListener('click', handler); }
+      try { btn.addEventListener('touchend', handler, { passive: false }); } catch (_) { btn.addEventListener('touchend', handler); }
+
+      // 非対応っぽい場合は補足だけ少し出す（フォントは下のヒントと同じ）
+      if (!canShowShareButton()) {
+        msg.textContent = 'この端末/ブラウザでは「まとめて保存」が使えない場合があります。下の画像を長押しして保存してください。';
+      }
     })();
+
 
     window.addEventListener('beforeunload', () => {
       urls.forEach(u => { try { URL.revokeObjectURL(u); } catch(e){} });
@@ -1035,18 +1101,8 @@ function updateExportButtonState() {
     topLeft.style.display = 'flex';
     topLeft.style.flexDirection = 'column';
     topLeft.style.gap = '0px'; // ← @をもうちょい上に寄せる
-    // ★枠外テキストの可読性UP（暗い背景でも読めるように）
-    // カード（背景ボックス）は付けない：文字の縁取りを強化して対応
     topLeft.style.color = '#111';
-    topLeft.style.textShadow = [
-      '0 0 8px rgba(255,255,255,0.98)',
-      '0 0 2px rgba(255,255,255,0.98)',
-      '0 1px 2px rgba(255,255,255,0.95)',
-      '0 -1px 2px rgba(255,255,255,0.95)',
-      '1px 0 2px rgba(255,255,255,0.95)',
-      '-1px 0 2px rgba(255,255,255,0.95)',
-      '0 3px 8px rgba(0,0,0,0.22)'
-    ].join(', ');
+    topLeft.style.textShadow = '0 0 10px rgba(255,255,255,0.96), 0 0 3px rgba(255,255,255,0.90), 0 0 2px rgba(0,0,0,0.55), 0 2px 6px rgba(0,0,0,0.35)';
 
     if (userName) {
       const nameEl = document.createElement('div');
@@ -1145,16 +1201,8 @@ function updateExportButtonState() {
     rightBox.style.fontSize = '11px';
     rightBox.style.lineHeight = '1.45';
     rightBox.style.color = '#111';
-    rightBox.style.opacity = '0.92';
-    rightBox.style.textShadow = [
-      '0 0 8px rgba(255,255,255,0.98)',
-      '0 0 2px rgba(255,255,255,0.98)',
-      '0 1px 2px rgba(255,255,255,0.95)',
-      '0 -1px 2px rgba(255,255,255,0.95)',
-      '1px 0 2px rgba(255,255,255,0.95)',
-      '-1px 0 2px rgba(255,255,255,0.95)',
-      '0 3px 8px rgba(0,0,0,0.22)'
-    ].join(', ');
+    rightBox.style.opacity = '0.6';
+    rightBox.style.textShadow = '0 0 10px rgba(255,255,255,0.96), 0 0 3px rgba(255,255,255,0.90), 0 0 2px rgba(0,0,0,0.55), 0 2px 6px rgba(0,0,0,0.35)';
     
     // ★ここはあなたの元の表示を維持
     rightBox.innerHTML = `
@@ -1682,6 +1730,7 @@ function updateExportButtonState() {
     // ======================
     const urls = [];
     const fileNames = [];
+    const blobs = [];
 
     try {
       const pad = String(pages.length).length >= 2 ? 2 : 2;
@@ -1692,6 +1741,7 @@ function updateExportButtonState() {
         const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
         if (!blob) continue;
 
+        blobs.push(blob);
         const url = URL.createObjectURL(blob);
         urls.push(url);
         fileNames.push(`pg-live-log_${String(i + 1).padStart(pad, '0')}_of_${String(pages.length).padStart(pad, '0')}.png`);
@@ -1703,6 +1753,16 @@ function updateExportButtonState() {
     exportArea.innerHTML = '';
 
     if (urls.length) {
+      // ★プレビュー側で fetch(blob:) せずに済むよう、File配列を直接渡す（端末依存の無反応対策）
+      try {
+        if (previewWin) {
+          const canFile = (typeof File === 'function');
+          if (canFile && blobs && blobs.length === fileNames.length) {
+            previewWin.__PGLL_EXPORT_FILES = blobs.map((b, i) => new File([b], fileNames[i], { type: b.type || 'image/png' }));
+          }
+        }
+      } catch (e) {}
+
       openPreviewTab(urls, fileNames, `pg-live-log_${pages.length}pages`, previewWin);
     } else {
       try { previewWin && previewWin.close(); } catch (_) {}
