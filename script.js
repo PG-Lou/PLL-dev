@@ -750,9 +750,9 @@ function updateExportButtonState() {
 <body>
   <div class="wrap">
     <div class="actions">
-      <button id="shareBtn" class="btn btnPrimary" type="button" hidden>まとめて保存（共有）</button>
+      <button id="shareBtn" class="btn btnPrimary" type="button">まとめて保存（共有）</button>
     </div>
-    <p id="shareMsg" class="msg" hidden></p>
+    <p id="shareMsg" class="msg">「まとめて保存」を押すと、端末の共有メニューが開きます（写真に追加など）。</p>
     <p class="hint">画像を長押し/右クリックで保存できます（端末/ブラウザによって表記が違います）。</p>
     ${safeUrls.map((u, i) => `
       <div class="imgbox">
@@ -765,12 +765,14 @@ function updateExportButtonState() {
     const urls = ${JSON.stringify(safeUrls)};
     const names = ${JSON.stringify(safeNames)};
 
-    function canShareFiles() {
+    // Web Share API の対応判定（ボタン表示用）
+    // NOTE: navigator.canShare({files}) は端末によって厳しめに false を返すことがあり、
+    // 「ボタンが出ない」原因になりがち。
+    // ここでは *ざっくり* 対応判定（navigator.share と File がある）で表示し、
+    // 実際の可否はクリック時に判定＆失敗時に案内する。
+    function canShowShareButton() {
       try {
-        if (!navigator.share) return false;
-        if (!navigator.canShare) return false;
-        const f = new File([new Blob([''], { type: 'image/png' })], 'a.png', { type: 'image/png' });
-        return navigator.canShare({ files: [f] });
+        return !!navigator.share && typeof File === 'function' && typeof Blob === 'function';
       } catch (e) {
         return false;
       }
@@ -780,6 +782,13 @@ function updateExportButtonState() {
       const btn = document.getElementById('shareBtn');
       const msg = document.getElementById('shareMsg');
       if (!btn || !msg) return;
+
+      // そもそも共有機能が無い端末（ここで即案内）
+      if (!canShowShareButton()) {
+        alert('この端末では「まとめて保存」に対応していません。\n下の画像を1枚ずつ保存してください。');
+        msg.textContent = 'この端末では「まとめて保存」が使えません。下の画像を長押しして保存してください。';
+        return;
+      }
 
       btn.disabled = true;
       btn.textContent = '準備中…';
@@ -799,7 +808,6 @@ function updateExportButtonState() {
         if (!navigator.canShare || !navigator.canShare({ files })) {
           msg.textContent = 'この端末では「まとめて保存」が使えません。下の画像を長押しして保存してください。';
           alert('この端末では「まとめて保存」に対応していません。\n下の画像を1枚ずつ保存してください。');
-          btn.hidden = true;
           return;
         }
 
@@ -825,16 +833,15 @@ function updateExportButtonState() {
       }
     }
 
-    // 対応端末のみボタン表示
+    // ボタンは常に表示（対応可否は押下時に案内）
     (function initShareUI(){
       const btn = document.getElementById('shareBtn');
       const msg = document.getElementById('shareMsg');
       if (!btn || !msg) return;
-      if (canShareFiles()) {
-        btn.hidden = false;
-        btn.addEventListener('click', shareAll);
-        msg.hidden = false;
-        msg.textContent = '「まとめて保存」を押すと、端末の共有メニューが開きます（写真に追加など）。';
+      btn.addEventListener('click', shareAll);
+      // 非対応端末っぽい場合は補足だけ少し出す（フォントは下のヒントと同じ）
+      if (!canShowShareButton()) {
+        msg.textContent = 'この端末/ブラウザでは「まとめて保存」が使えない場合があります。下の画像を長押しして保存してください。';
       }
     })();
 
