@@ -705,6 +705,66 @@ function updateExportButtonState() {
     .addEventListener('change', updateExportButtonState);
 
   // ======================
+  // ★イメージカラー追加（末尾に順番どおり追加）
+  // ======================
+  (function addMoreBgOptions(){
+    const sel = document.getElementById('bg-select');
+    if (!sel) return;
+
+    const defs = [
+      // 下から順番に追加
+      {
+        label: 'はみだし御免',
+        // 濃いめのレッドオレンジ（炎っぽく）
+        value: 'linear-gradient(135deg, #ff2a00 0%, #ff5a00 45%, #ff9a00 100%)'
+      },
+      {
+        label: 'Zombies are standing out',
+        // 青〜オレンジのグラデーション
+        value: 'linear-gradient(135deg, #0066ff 0%, #2b9dff 35%, #ff7a00 100%)'
+      },
+      {
+        label: 'ラック',
+        // グレー〜黒のグラデーション
+        value: 'linear-gradient(135deg, #6a6a6a 0%, #2f2f2f 55%, #000000 100%)'
+      },
+      {
+        label: 'ブレス',
+        // レインボー
+        value: 'linear-gradient(135deg, #ff004c 0%, #ff7a00 18%, #ffe600 36%, #18ff7a 54%, #00a3ff 72%, #7a00ff 90%, #ff00c8 100%)'
+      },
+      {
+        label: '解放区',
+        // 夜空（濃紺 + 星のまたたきっぽい粒）
+        // ※静止画像なので「またたき」は表現としてドット散らし
+        value: [
+          'radial-gradient(circle at 12% 18%, rgba(255,255,255,0.95) 0 1px, rgba(255,255,255,0) 2px)',
+          'radial-gradient(circle at 78% 22%, rgba(255,255,255,0.85) 0 1px, rgba(255,255,255,0) 2px)',
+          'radial-gradient(circle at 58% 66%, rgba(255,255,255,0.80) 0 1px, rgba(255,255,255,0) 2px)',
+          'radial-gradient(circle at 22% 72%, rgba(255,255,255,0.75) 0 1px, rgba(255,255,255,0) 2px)',
+          'radial-gradient(circle at 88% 74%, rgba(255,255,255,0.70) 0 1px, rgba(255,255,255,0) 2px)',
+          'radial-gradient(circle at 42% 38%, rgba(255,255,255,0.65) 0 1px, rgba(255,255,255,0) 2px)',
+          'linear-gradient(180deg, #020b2a 0%, #061a4a 55%, #0a2b6a 100%)'
+        ].join(',')
+      }
+    ];
+
+    const exists = (label) => {
+      const t = String(label || '').trim();
+      return Array.from(sel.options).some(o => (o.dataset.label || o.textContent || '').trim() === t);
+    };
+
+    defs.forEach(d => {
+      if (exists(d.label)) return;
+      const opt = document.createElement('option');
+      opt.value = d.value;
+      opt.textContent = d.label;
+      opt.dataset.label = d.label;
+      sel.appendChild(opt);
+    });
+  })();
+
+  // ======================
   // 画像出力（分割対応）
   // ======================
   // ======================
@@ -745,6 +805,11 @@ function updateExportButtonState() {
      .msg { font-size: 13px; color: rgba(0,0,0,0.55); margin: 0 0 12px; }
     .imgbox { background: #fff; border-radius: 14px; padding: 10px; box-shadow: 0 6px 18px rgba(0,0,0,0.10); margin-bottom: 14px; }
     img { width: 100%; height: auto; display: block; border-radius: 10px; }
+
+    /* PC(マウス操作)はWeb Shareが「無反応」になりがちなので、ボタンは最初から非表示 */
+    @media (hover:hover) and (pointer:fine) {
+      .actions { display: none; }
+    }
   </style>
 </head>
 <body>
@@ -799,47 +864,65 @@ function updateExportButtonState() {
       msg.textContent = '共有の準備中…（端末によっては少し時間がかかります）';
 
       try {
-        // 画像のURLから Blob を取り出して File 化
-        const files = [];
-        for (let i = 0; i < urls.length; i++) {
-          const u = urls[i];
-          let blob;
-          try {
-            const res = await fetch(u);
-            blob = await res.blob();
-          } catch (e) {
-            // fetch(blob:) が失敗する環境向け：img要素から取り直す
-            const img = document.querySelectorAll('img')[i];
-            if (!img) throw e;
-            const res2 = await fetch(img.currentSrc || img.src);
-            blob = await res2.blob();
+        // 「押しても無反応」対策：準備〜共有までまとめてタイムアウト
+        // ※端末によっては share() が resolve/reject しないことがある
+        const WHOLE_TIMEOUT_MS = 12000;
+        const wholeTimeout = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('whole-timeout')), WHOLE_TIMEOUT_MS)
+        );
+
+        const task = (async () => {
+          // 画像のURLから Blob を取り出して File 化（fetchが固まる端末対策でAbortController）
+          const files = [];
+          const imgs = Array.from(document.querySelectorAll('img'));
+          const FETCH_TIMEOUT_MS = 4000;
+
+          for (let i = 0; i < urls.length; i++) {
+            const src = (imgs[i] && (imgs[i].currentSrc || imgs[i].src)) ? (imgs[i].currentSrc || imgs[i].src) : urls[i];
+            const controller = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+            const t = setTimeout(() => { try { controller && controller.abort(); } catch(e){} }, FETCH_TIMEOUT_MS);
+            let blob;
+            try {
+              const res = await fetch(src, controller ? { signal: controller.signal } : undefined);
+              blob = await res.blob();
+            } finally {
+              clearTimeout(t);
+            }
+            const name = names[i] || ('pg-live-log_' + String(i + 1).padStart(2, '0') + '.png');
+            files.push(new File([blob], name, { type: blob.type || 'image/png' }));
           }
-          const name = names[i] || ('pg-live-log_' + String(i + 1).padStart(2, '0') + '.png');
-          files.push(new File([blob], name, { type: blob.type || 'image/png' }));
-        }
 
-        // Edge(PC)などで「黙って何も起きない」ケース対策：一定時間でタイムアウトしてフォールバック
-        const SHARE_TIMEOUT_MS = 1500;
-        let _shareTimer;
+          // files共有の可否をここで判定（falseなら即フォールバック案内）
+          if (navigator.canShare && !navigator.canShare({ files })) {
+            throw new Error('files-not-supported');
+          }
 
-        const sharePromise = navigator.share({
-          files,
-          title: 'PG LIVE LOG',
-          text: '参戦履歴画像'
-        });
-        const timeoutPromise = new Promise((_, reject) => {
-          _shareTimer = setTimeout(() => reject(new Error('share-timeout')), SHARE_TIMEOUT_MS);
-        });
+          // share() 自体の無反応対策：短めタイムアウト
+          const SHARE_TIMEOUT_MS = 2000;
+          let _shareTimer;
+          const sharePromise = navigator.share({ files, title: 'PG LIVE LOG', text: '参戦履歴画像' });
+          const shareTimeout = new Promise((_, reject) => {
+            _shareTimer = setTimeout(() => reject(new Error('share-timeout')), SHARE_TIMEOUT_MS);
+          });
+          await Promise.race([sharePromise, shareTimeout]).finally(() => {
+            if (_shareTimer) clearTimeout(_shareTimer);
+          });
+        })();
 
-        await Promise.race([sharePromise, timeoutPromise]).finally(() => {
-          if (_shareTimer) clearTimeout(_shareTimer);
-        });
+        await Promise.race([task, wholeTimeout]);
 
         msg.textContent = '共有メニューを開きました。写真アプリ等に保存してください。';
       } catch (e) {
         const name = (e && e.name) ? e.name : '';
+        const msgText = (e && e.message) ? String(e.message) : '';
         if (name === 'AbortError') {
           msg.textContent = '共有をキャンセルしました。下の画像を長押しして保存もできます。';
+        } else if (msgText === 'files-not-supported') {
+          msg.textContent = 'この端末/ブラウザでは「まとめて保存（ファイル共有）」に対応していません。下の画像を1枚ずつ保存してください。';
+          alert('この端末/ブラウザでは「まとめて保存（共有）」に対応していません。\n下の画像を1枚ずつ保存してください。');
+        } else if (msgText === 'whole-timeout' || msgText === 'share-timeout') {
+          msg.textContent = '共有メニューが開けませんでした。下の画像を1枚ずつ保存してください。';
+          alert('共有メニューが開けませんでした（端末側の制限の可能性）。\n下の画像を1枚ずつ保存してください。');
         } else {
           msg.textContent = 'この端末では「まとめて保存」が使えない可能性があります。下の画像を1枚ずつ保存してください。';
           alert('「まとめて保存」でエラーが発生しました。\nこの端末では対応していない可能性があります。\n下の画像を1枚ずつ保存してください。');
@@ -952,8 +1035,18 @@ function updateExportButtonState() {
     topLeft.style.display = 'flex';
     topLeft.style.flexDirection = 'column';
     topLeft.style.gap = '0px'; // ← @をもうちょい上に寄せる
+    // ★枠外テキストの可読性UP（暗い背景でも読めるように）
+    // カード（背景ボックス）は付けない：文字の縁取りを強化して対応
     topLeft.style.color = '#111';
-    topLeft.style.textShadow = '0 0 6px rgba(255,255,255,0.85),0 1px 2px rgba(255,255,255,0.85)';
+    topLeft.style.textShadow = [
+      '0 0 8px rgba(255,255,255,0.98)',
+      '0 0 2px rgba(255,255,255,0.98)',
+      '0 1px 2px rgba(255,255,255,0.95)',
+      '0 -1px 2px rgba(255,255,255,0.95)',
+      '1px 0 2px rgba(255,255,255,0.95)',
+      '-1px 0 2px rgba(255,255,255,0.95)',
+      '0 3px 8px rgba(0,0,0,0.22)'
+    ].join(', ');
 
     if (userName) {
       const nameEl = document.createElement('div');
@@ -1052,8 +1145,16 @@ function updateExportButtonState() {
     rightBox.style.fontSize = '11px';
     rightBox.style.lineHeight = '1.45';
     rightBox.style.color = '#111';
-    rightBox.style.opacity = '0.6';
-    rightBox.style.textShadow = '0 0 6px rgba(255,255,255,0.85),0 1px 2px rgba(255,255,255,0.85)';
+    rightBox.style.opacity = '0.92';
+    rightBox.style.textShadow = [
+      '0 0 8px rgba(255,255,255,0.98)',
+      '0 0 2px rgba(255,255,255,0.98)',
+      '0 1px 2px rgba(255,255,255,0.95)',
+      '0 -1px 2px rgba(255,255,255,0.95)',
+      '1px 0 2px rgba(255,255,255,0.95)',
+      '-1px 0 2px rgba(255,255,255,0.95)',
+      '0 3px 8px rgba(0,0,0,0.22)'
+    ].join(', ');
     
     // ★ここはあなたの元の表示を維持
     rightBox.innerHTML = `
