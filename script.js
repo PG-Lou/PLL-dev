@@ -765,14 +765,18 @@ function updateExportButtonState() {
     const urls = ${JSON.stringify(safeUrls)};
     const names = ${JSON.stringify(safeNames)};
 
-    // Web Share API の対応判定（ボタン表示用）
-    // NOTE: navigator.canShare({files}) は端末によって厳しめに false を返すことがあり、
-    // 「ボタンが出ない」原因になりがち。
-    // ここでは *ざっくり* 対応判定（navigator.share と File がある）で表示し、
-    // 実際の可否はクリック時に判定＆失敗時に案内する。
-    function canShowShareButton() {
+    // ===== 共有ボタン表示判定 =====
+    // PCは "押しても無反応" になりがちなので、最初から非表示にする。
+    // "スマホ + navigator.share がある" 場合だけ表示。
+    function isMobileShareCapable() {
       try {
-        return !!navigator.share && typeof File === 'function' && typeof Blob === 'function';
+        // User-Agent Client Hints が使える場合はそれを優先
+        if (navigator.userAgentData && typeof navigator.userAgentData.mobile === 'boolean') {
+          return navigator.userAgentData.mobile && !!navigator.share;
+        }
+        const ua = navigator.userAgent || '';
+        const isMobile = /Android|iPhone|iPad|iPod/i.test(ua);
+        return isMobile && !!navigator.share;
       } catch (e) {
         return false;
       }
@@ -846,16 +850,20 @@ function updateExportButtonState() {
       }
     }
 
-    // ボタンは常に表示（対応可否は押下時に案内）
+    // ボタンは「スマホのみ」表示（PCでは非表示）
     (function initShareUI(){
       const btn = document.getElementById('shareBtn');
       const msg = document.getElementById('shareMsg');
       if (!btn || !msg) return;
-      btn.addEventListener('click', shareAll);
-      // 非対応端末っぽい場合は補足だけ少し出す（フォントは下のヒントと同じ）
-      if (!canShowShareButton()) {
-        msg.textContent = 'この端末/ブラウザでは「まとめて保存」が使えない場合があります。下の画像を長押しして保存してください。';
+
+      if (!isMobileShareCapable()) {
+        // ★PC/非対応端末はボタンを消して、1枚ずつ保存案内に寄せる
+        btn.style.display = 'none';
+        msg.textContent = '画像を長押し/右クリックで保存してください。';
+        return;
       }
+
+      btn.addEventListener('click', shareAll);
     })();
 
     window.addEventListener('beforeunload', () => {
