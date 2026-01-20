@@ -783,8 +783,8 @@ function updateExportButtonState() {
       const msg = document.getElementById('shareMsg');
       if (!btn || !msg) return;
 
-      // そもそも共有機能が無い端末（ここで即案内）
-      if (!canShowShareButton()) {
+      // 共有機能そのものが無い端末
+      if (!navigator.share) {
         alert('この端末では「まとめて保存」に対応していません。\n下の画像を1枚ずつ保存してください。');
         msg.textContent = 'この端末では「まとめて保存」が使えません。下の画像を長押しして保存してください。';
         return;
@@ -792,39 +792,42 @@ function updateExportButtonState() {
 
       btn.disabled = true;
       btn.textContent = '準備中…';
-      msg.hidden = false;
       msg.textContent = '共有の準備中…（端末によっては少し時間がかかります）';
 
       try {
+        // 画像のURLから Blob を取り出して File 化
         const files = [];
         for (let i = 0; i < urls.length; i++) {
           const u = urls[i];
-          const res = await fetch(u);
-          const blob = await res.blob();
+          let blob;
+          try {
+            const res = await fetch(u);
+            blob = await res.blob();
+          } catch (e) {
+            // fetch(blob:) が失敗する環境向け：img要素から取り直す
+            const img = document.querySelectorAll('img')[i];
+            if (!img) throw e;
+            const res2 = await fetch(img.currentSrc || img.src);
+            blob = await res2.blob();
+          }
           const name = names[i] || ('pg-live-log_' + String(i + 1).padStart(2, '0') + '.png');
           files.push(new File([blob], name, { type: blob.type || 'image/png' }));
         }
 
-        if (!navigator.canShare || !navigator.canShare({ files })) {
-          msg.textContent = 'この端末では「まとめて保存」が使えません。下の画像を長押しして保存してください。';
-          alert('この端末では「まとめて保存」に対応していません。\n下の画像を1枚ずつ保存してください。');
-          return;
-        }
-
+        // canShare は厳しすぎる端末があるので「通ればOK」方式にする
         await navigator.share({
           files,
           title: 'PG LIVE LOG',
           text: '参戦履歴画像'
         });
 
-        msg.textContent = '共有しました。写真アプリ等に保存してください。';
+        msg.textContent = '共有メニューを開きました。写真アプリ等に保存してください。';
       } catch (e) {
-        // キャンセル（AbortError）はエラー扱いにしない
         const name = (e && e.name) ? e.name : '';
         if (name === 'AbortError') {
           msg.textContent = '共有をキャンセルしました。下の画像を長押しして保存もできます。';
         } else {
-          msg.textContent = '共有に失敗しました。下の画像を長押しして保存してください。';
+          msg.textContent = 'この端末では「まとめて保存」が使えない可能性があります。下の画像を1枚ずつ保存してください。';
           alert('「まとめて保存」でエラーが発生しました。\nこの端末では対応していない可能性があります。\n下の画像を1枚ずつ保存してください。');
         }
       } finally {
