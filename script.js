@@ -814,11 +814,21 @@ function updateExportButtonState() {
           files.push(new File([blob], name, { type: blob.type || 'image/png' }));
         }
 
-        // canShare は厳しすぎる端末があるので「通ればOK」方式にする
-        await navigator.share({
+        // Edge(PC)などで「黙って何も起きない」ケース対策：一定時間でタイムアウトしてフォールバック
+        const SHARE_TIMEOUT_MS = 1500;
+        let _shareTimer;
+
+        const sharePromise = navigator.share({
           files,
           title: 'PG LIVE LOG',
           text: '参戦履歴画像'
+        });
+        const timeoutPromise = new Promise((_, reject) => {
+          _shareTimer = setTimeout(() => reject(new Error('share-timeout')), SHARE_TIMEOUT_MS);
+        });
+
+        await Promise.race([sharePromise, timeoutPromise]).finally(() => {
+          if (_shareTimer) clearTimeout(_shareTimer);
         });
 
         msg.textContent = '共有メニューを開きました。写真アプリ等に保存してください。';
