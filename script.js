@@ -967,15 +967,9 @@ function resolveBackground(bgValue, name) {
            "#2f2f2f";
   }
 
-  // Rainbow：もっとパステル寄り（彩度↓・白み↑）
+  // Rainbow：くすみすぎ回避。明るくカラフルなレインボー
   if (bgValue === 'RAINBOW') {
-    return "radial-gradient(circle at 15% 25%, rgba(255, 205, 215, 0.50) 0%, transparent 58%)," +
-           "radial-gradient(circle at 35% 20%, rgba(255, 235, 205, 0.48) 0%, transparent 60%)," +
-           "radial-gradient(circle at 55% 22%, rgba(255, 252, 215, 0.46) 0%, transparent 62%)," +
-           "radial-gradient(circle at 70% 30%, rgba(215, 250, 225, 0.46) 0%, transparent 64%)," +
-           "radial-gradient(circle at 78% 55%, rgba(205, 235, 255, 0.48) 0%, transparent 68%)," +
-           "radial-gradient(circle at 62% 80%, rgba(230, 215, 255, 0.46) 0%, transparent 72%)," +
-           "#fbf9ff";
+    return "linear-gradient(135deg," +" rgba(255, 107, 107, 0.88) 0%," +" rgba(255, 217, 61, 0.88) 18%," +" rgba(107, 255, 149, 0.88) 36%," +" rgba(77, 217, 255, 0.88) 54%," +" rgba(107, 124, 255, 0.88) 72%," +" rgba(181, 107, 255, 0.88) 90%)," +"radial-gradient(circle at 22% 28%, rgba(255, 255, 255, 0.28) 0%, transparent 58%)," +"radial-gradient(circle at 78% 82%, rgba(255, 255, 255, 0.22) 0%, transparent 62%)";
   }
 
   return bgValue;
@@ -994,16 +988,33 @@ function resolveBackground(bgValue, name) {
     wrapper.style.fontFamily = 'Helvetica, Arial, sans-serif';
 
     // ===== 枠外テキスト（名前/X/右下表記）の見やすさ調整 =====
-    const isDarkTheme = (() => {
+    const theme = (() => {
       const n = String(colorName || '');
-      return /ラック|Zombies|はみだし御免/i.test(n);
+      // Zombies は背景が明るめなので、枠外テキストは黒固定にしたい
+      const forceOuterTextBlack = /Zombies/i.test(n);
+
+      // 暗背景として扱うのは「ラック」「はみだし御免」だけ（Zombies は除外）
+      const dark = /ラック|はみだし御免/i.test(n);
+
+      return { dark, forceOuterTextBlack };
     })();
+
+    const isDarkTheme = theme.dark;
+    const forceOuterTextBlack = theme.forceOuterTextBlack;
 
     function applyOuterTextStyle(el, dark) {
       if (!el) return;
       // 背景にカードは敷かない。文字色と縁取り（shadow/stroke）だけで可読性を上げる。
       el.style.opacity = '1';
       el.style.fontWeight = el.style.fontWeight || '600';
+
+      // Zombies は枠外テキストを黒固定
+      if (forceOuterTextBlack) {
+        el.style.color = '#000000';
+        el.style.textShadow = 'none';
+        el.style.webkitTextStroke = '0px transparent';
+        return;
+      }
 
       if (dark) {
         // 暗背景：白文字（黒いもやもやは入れない）
