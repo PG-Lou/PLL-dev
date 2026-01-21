@@ -967,9 +967,17 @@ function resolveBackground(bgValue, name) {
            "#2f2f2f";
   }
 
-  // Rainbow：くすみすぎ回避。明るくカラフルなレインボー
+  // Rainbow：パステル寄り（白みは足すが、濁らせない）
   if (bgValue === 'RAINBOW') {
-    return "linear-gradient(135deg," +" rgba(255, 107, 107, 0.88) 0%," +" rgba(255, 217, 61, 0.88) 18%," +" rgba(107, 255, 149, 0.88) 36%," +" rgba(77, 217, 255, 0.88) 54%," +" rgba(107, 124, 255, 0.88) 72%," +" rgba(181, 107, 255, 0.88) 90%)," +"radial-gradient(circle at 22% 28%, rgba(255, 255, 255, 0.28) 0%, transparent 58%)," +"radial-gradient(circle at 78% 82%, rgba(255, 255, 255, 0.22) 0%, transparent 62%)";
+    return "linear-gradient(135deg," +
+           " rgba(255, 182, 193, 0.96) 0%," +   // pastel pink
+           " rgba(255, 223, 186, 0.96) 18%," +  // pastel peach
+           " rgba(255, 255, 186, 0.96) 36%," +  // pastel yellow
+           " rgba(186, 255, 201, 0.96) 54%," +  // pastel mint
+           " rgba(186, 225, 255, 0.96) 72%," +  // pastel sky
+           " rgba(215, 186, 255, 0.96) 90%)," + // pastel lavender
+           "radial-gradient(circle at 22% 28%, rgba(255, 255, 255, 0.12) 0%, transparent 60%)," +
+           "radial-gradient(circle at 78% 82%, rgba(255, 255, 255, 0.10) 0%, transparent 65%)";
   }
 
   return bgValue;
