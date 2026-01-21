@@ -398,10 +398,12 @@ function stripStateParamsFromUrl() {
   try {
     const url = new URL(location.href);
 
-    // チェック状態だけ消す（名前とXは残す）
+    // URL元に戻す
     url.searchParams.delete('b');
     url.searchParams.delete('r');
     url.searchParams.delete('d');
+    url.searchParams.delete('n');
+    url.searchParams.delete('x');
 
     // 履歴を増やさずURLだけ差し替え
     history.replaceState(null, '', url.toString());
@@ -1864,6 +1866,7 @@ function resolveBackground(bgValue, name) {
   });
 
 });
+
 
 
 
