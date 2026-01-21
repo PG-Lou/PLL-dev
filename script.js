@@ -720,7 +720,7 @@ function updateExportButtonState() {
           'radial-gradient(circle at 18% 30%, rgba(255,140,30,0.28) 0%, rgba(255,140,30,0) 55%)',
           'radial-gradient(circle at 70% 35%, rgba(255,60,0,0.22) 0%, rgba(255,60,0,0) 60%)',
           'radial-gradient(circle at 45% 80%, rgba(255,210,120,0.14) 0%, rgba(255,210,120,0) 62%)',
-          'linear-gradient(135deg, #1f0000 0%, #3a1200 45%, #5a1f00 100%)'
+          'linear-gradient(135deg, #140000 0%, #2a0d00 50%, #3a1200 100%)'
         ].join(',' )
       },
       {
@@ -744,45 +744,59 @@ function updateExportButtonState() {
         ].join(',' )
       },
       {
-        label: 'ブレス',
-        // レインボー（ただの虹グラデじゃなく、光の“もや”）
+        label: 'Rainbow',
+        // パステル虹（もやもや）
         value: [
-          'radial-gradient(circle at 18% 28%, rgba(255,0,120,0.26) 0%, rgba(255,0,120,0) 58%)',
-          'radial-gradient(circle at 72% 26%, rgba(0,190,255,0.24) 0%, rgba(0,190,255,0) 58%)',
-          'radial-gradient(circle at 60% 74%, rgba(120,255,0,0.20) 0%, rgba(120,255,0,0) 62%)',
-          'radial-gradient(circle at 28% 80%, rgba(255,210,0,0.18) 0%, rgba(255,210,0,0) 62%)',
-          'radial-gradient(circle at 86% 70%, rgba(165,0,255,0.20) 0%, rgba(165,0,255,0) 62%)',
-          'linear-gradient(135deg, #240014 0%, #101a38 35%, #06281a 70%, #362100 100%)'
+          'radial-gradient(circle at 18% 28%, rgba(255,160,180,0.22) 0%, rgba(255,160,180,0) 62%)',
+          'radial-gradient(circle at 42% 18%, rgba(255,220,160,0.20) 0%, rgba(255,220,160,0) 62%)',
+          'radial-gradient(circle at 70% 28%, rgba(255,245,170,0.18) 0%, rgba(255,245,170,0) 62%)',
+          'radial-gradient(circle at 80% 58%, rgba(170,235,190,0.20) 0%, rgba(170,235,190,0) 64%)',
+          'radial-gradient(circle at 62% 78%, rgba(170,215,255,0.22) 0%, rgba(170,215,255,0) 64%)',
+          'radial-gradient(circle at 28% 78%, rgba(205,170,255,0.20) 0%, rgba(205,170,255,0) 64%)',
+          'linear-gradient(135deg, #1b1b2a 0%, #21253a 35%, #1f2b33 70%, #2a2233 100%)'
         ].join(',' )
       },
       {
         label: '解放区',
         // 夜空（濃紺 + 星 + うっすら星雲）
         value: [
-          // 星（小さめ多め）
-          'radial-gradient(circle at 8% 14%, rgba(255,255,255,0.95) 0 1px, rgba(255,255,255,0) 2px)',
-          'radial-gradient(circle at 16% 32%, rgba(255,255,255,0.80) 0 1px, rgba(255,255,255,0) 2px)',
-          'radial-gradient(circle at 28% 18%, rgba(255,255,255,0.70) 0 1px, rgba(255,255,255,0) 2px)',
-          'radial-gradient(circle at 34% 40%, rgba(255,255,255,0.85) 0 1px, rgba(255,255,255,0) 2px)',
-          'radial-gradient(circle at 42% 22%, rgba(255,255,255,0.65) 0 1px, rgba(255,255,255,0) 2px)',
-          'radial-gradient(circle at 52% 14%, rgba(255,255,255,0.90) 0 1px, rgba(255,255,255,0) 2px)',
-          'radial-gradient(circle at 60% 34%, rgba(255,255,255,0.75) 0 1px, rgba(255,255,255,0) 2px)',
-          'radial-gradient(circle at 68% 20%, rgba(255,255,255,0.60) 0 1px, rgba(255,255,255,0) 2px)',
-          'radial-gradient(circle at 76% 36%, rgba(255,255,255,0.88) 0 1px, rgba(255,255,255,0) 2px)',
-          'radial-gradient(circle at 84% 16%, rgba(255,255,255,0.72) 0 1px, rgba(255,255,255,0) 2px)',
-          'radial-gradient(circle at 90% 30%, rgba(255,255,255,0.85) 0 1px, rgba(255,255,255,0) 2px)',
-          'radial-gradient(circle at 12% 68%, rgba(255,255,255,0.78) 0 1px, rgba(255,255,255,0) 2px)',
-          'radial-gradient(circle at 22% 78%, rgba(255,255,255,0.62) 0 1px, rgba(255,255,255,0) 2px)',
-          'radial-gradient(circle at 36% 72%, rgba(255,255,255,0.90) 0 1px, rgba(255,255,255,0) 2px)',
-          'radial-gradient(circle at 48% 86%, rgba(255,255,255,0.74) 0 1px, rgba(255,255,255,0) 2px)',
-          'radial-gradient(circle at 62% 74%, rgba(255,255,255,0.66) 0 1px, rgba(255,255,255,0) 2px)',
-          'radial-gradient(circle at 74% 84%, rgba(255,255,255,0.82) 0 1px, rgba(255,255,255,0) 2px)',
-          'radial-gradient(circle at 88% 72%, rgba(255,255,255,0.70) 0 1px, rgba(255,255,255,0) 2px)',
-          // 星雲っぽい“もや”
-          'radial-gradient(circle at 30% 55%, rgba(120,160,255,0.10) 0%, rgba(120,160,255,0) 62%)',
-          'radial-gradient(circle at 70% 60%, rgba(190,120,255,0.08) 0%, rgba(190,120,255,0) 65%)',
-          'radial-gradient(circle at 55% 40%, rgba(255,220,120,0.06) 0%, rgba(255,220,120,0) 60%)',
-          // ベース夜空
+          'radial-gradient(circle at 5% 12%, rgba(255,255,255,0.95) 0px, rgba(255,255,255,0.95) 1px, rgba(255,255,255,0) 2px)',
+          'radial-gradient(circle at 12% 22%, rgba(255,255,255,0.8) 0px, rgba(255,255,255,0.8) 1px, rgba(255,255,255,0) 2px)',
+          'radial-gradient(circle at 18% 8%, rgba(255,255,255,0.7) 0px, rgba(255,255,255,0.7) 1px, rgba(255,255,255,0) 2px)',
+          'radial-gradient(circle at 26% 30%, rgba(255,255,255,0.88) 0px, rgba(255,255,255,0.88) 1px, rgba(255,255,255,0) 2px)',
+          'radial-gradient(circle at 34% 16%, rgba(255,255,255,0.66) 0px, rgba(255,255,255,0.66) 1px, rgba(255,255,255,0) 2px)',
+          'radial-gradient(circle at 42% 10%, rgba(255,255,255,0.92) 0px, rgba(255,255,255,0.92) 1px, rgba(255,255,255,0) 2px)',
+          'radial-gradient(circle at 50% 26%, rgba(255,255,255,0.74) 0px, rgba(255,255,255,0.74) 1px, rgba(255,255,255,0) 2px)',
+          'radial-gradient(circle at 58% 14%, rgba(255,255,255,0.62) 0px, rgba(255,255,255,0.62) 1px, rgba(255,255,255,0) 2px)',
+          'radial-gradient(circle at 66% 28%, rgba(255,255,255,0.86) 0px, rgba(255,255,255,0.86) 1px, rgba(255,255,255,0) 2px)',
+          'radial-gradient(circle at 74% 10%, rgba(255,255,255,0.72) 0px, rgba(255,255,255,0.72) 1px, rgba(255,255,255,0) 2px)',
+          'radial-gradient(circle at 82% 22%, rgba(255,255,255,0.9) 0px, rgba(255,255,255,0.9) 1px, rgba(255,255,255,0) 2px)',
+          'radial-gradient(circle at 90% 12%, rgba(255,255,255,0.68) 0px, rgba(255,255,255,0.68) 1px, rgba(255,255,255,0) 2px)',
+          'radial-gradient(circle at 8% 56%, rgba(255,255,255,0.78) 0px, rgba(255,255,255,0.78) 1px, rgba(255,255,255,0) 2px)',
+          'radial-gradient(circle at 16% 74%, rgba(255,255,255,0.64) 0px, rgba(255,255,255,0.64) 1px, rgba(255,255,255,0) 2px)',
+          'radial-gradient(circle at 24% 64%, rgba(255,255,255,0.9) 0px, rgba(255,255,255,0.9) 1px, rgba(255,255,255,0) 2px)',
+          'radial-gradient(circle at 32% 82%, rgba(255,255,255,0.74) 0px, rgba(255,255,255,0.74) 1px, rgba(255,255,255,0) 2px)',
+          'radial-gradient(circle at 40% 70%, rgba(255,255,255,0.66) 0px, rgba(255,255,255,0.66) 1px, rgba(255,255,255,0) 2px)',
+          'radial-gradient(circle at 48% 90%, rgba(255,255,255,0.82) 0px, rgba(255,255,255,0.82) 1px, rgba(255,255,255,0) 2px)',
+          'radial-gradient(circle at 56% 78%, rgba(255,255,255,0.7) 0px, rgba(255,255,255,0.7) 1px, rgba(255,255,255,0) 2px)',
+          'radial-gradient(circle at 64% 88%, rgba(255,255,255,0.84) 0px, rgba(255,255,255,0.84) 1px, rgba(255,255,255,0) 2px)',
+          'radial-gradient(circle at 72% 68%, rgba(255,255,255,0.62) 0px, rgba(255,255,255,0.62) 1px, rgba(255,255,255,0) 2px)',
+          'radial-gradient(circle at 80% 84%, rgba(255,255,255,0.76) 0px, rgba(255,255,255,0.76) 1px, rgba(255,255,255,0) 2px)',
+          'radial-gradient(circle at 88% 72%, rgba(255,255,255,0.88) 0px, rgba(255,255,255,0.88) 1px, rgba(255,255,255,0) 2px)',
+          'radial-gradient(circle at 94% 60%, rgba(255,255,255,0.65) 0px, rgba(255,255,255,0.65) 1px, rgba(255,255,255,0) 2px)',
+          'radial-gradient(circle at 10% 40%, rgba(255,255,255,0.72) 0px, rgba(255,255,255,0.72) 1px, rgba(255,255,255,0) 2px)',
+          'radial-gradient(circle at 22% 46%, rgba(255,255,255,0.6) 0px, rgba(255,255,255,0.6) 1px, rgba(255,255,255,0) 2px)',
+          'radial-gradient(circle at 36% 52%, rgba(255,255,255,0.82) 0px, rgba(255,255,255,0.82) 1px, rgba(255,255,255,0) 2px)',
+          'radial-gradient(circle at 52% 46%, rgba(255,255,255,0.58) 0px, rgba(255,255,255,0.58) 1px, rgba(255,255,255,0) 2px)',
+          'radial-gradient(circle at 68% 50%, rgba(255,255,255,0.78) 0px, rgba(255,255,255,0.78) 1px, rgba(255,255,255,0) 2px)',
+          'radial-gradient(circle at 84% 44%, rgba(255,255,255,0.66) 0px, rgba(255,255,255,0.66) 1px, rgba(255,255,255,0) 2px)',
+          'radial-gradient(circle at 30% 20%, rgba(255,255,255,0.85) 0px, rgba(255,255,255,0.85) 1.5px, rgba(255,255,255,0) 3px)',
+          'radial-gradient(circle at 62% 24%, rgba(255,255,255,0.85) 0px, rgba(255,255,255,0.85) 1.5px, rgba(255,255,255,0) 3px)',
+          'radial-gradient(circle at 78% 36%, rgba(255,255,255,0.85) 0px, rgba(255,255,255,0.85) 1.5px, rgba(255,255,255,0) 3px)',
+          'radial-gradient(circle at 46% 60%, rgba(255,255,255,0.85) 0px, rgba(255,255,255,0.85) 1.5px, rgba(255,255,255,0) 3px)',
+          'radial-gradient(circle at 30% 55%, rgba(120,160,255,0.12) 0%, rgba(120,160,255,0) 62%)',
+          'radial-gradient(circle at 70% 60%, rgba(190,120,255,0.10) 0%, rgba(190,120,255,0) 65%)',
+          'radial-gradient(circle at 55% 40%, rgba(255,220,120,0.08) 0%, rgba(255,220,120,0) 60%)',
           'linear-gradient(180deg, #010818 0%, #04133a 55%, #061a4a 100%)'
         ].join(',' )
       }
@@ -796,6 +810,8 @@ function updateExportButtonState() {
     defs.forEach(d => {
       const ex = getOpt(d.label);
       if (ex) {
+        // 『ブレス』は既存の色を維持（上書きしない）
+        if ((d.label || '').trim() === 'ブレス') return;
         // 既にある場合は“上書き”して最新の色味にする
         ex.value = d.value;
         ex.textContent = d.label;
@@ -851,6 +867,14 @@ function updateExportButtonState() {
      .msg { font-size: 13px; color: rgba(0,0,0,0.55); margin: 0 0 12px; }
     .imgbox { background: #fff; border-radius: 14px; padding: 10px; box-shadow: 0 6px 18px rgba(0,0,0,0.10); margin-bottom: 14px; }
     img { width: 100%; height: auto; display: block; border-radius: 10px; }
+    @media (hover:hover) and (pointer:fine) {
+      #shareBtn { display:none !important; }
+      #shareMsg { display:none !important; }
+    }
+    @media (min-width: 901px) {
+      #shareBtn { display:none !important; }
+      #shareMsg { display:none !important; }
+    }
   </style>
 </head>
 <body>
@@ -976,41 +1000,31 @@ function updateExportButtonState() {
       const msg = document.getElementById('shareMsg');
       if (!btn || !msg) return;
 
-      const ua = String(navigator.userAgent || '');
-      const isMobile = /Android|iPhone|iPad|iPod/i.test(ua);
+      // PCは完全に非表示（UA + pointer判定の二重）
+      const ua = navigator.userAgent || '';
+      const isMobileUA = /Android|iPhone|iPad|iPod/i.test(ua);
+      const coarse = (window.matchMedia && window.matchMedia('(pointer:coarse)').matches) ? true : false;
+      const can = canShowShareButton();
 
-      if (!isMobile) {
-        // PCは共有ボタンを出さない
+      if (!(isMobileUA && coarse && can)) {
         btn.style.display = 'none';
-        msg.textContent = '画像を右クリックで保存してください。';
+        msg.textContent = '画像を長押しして保存できます（端末/ブラウザによって表記が違います）。';
         return;
       }
 
-      // 共有機能そのものが無い端末
-      if (!navigator.share) {
-        btn.style.display = 'none';
-        msg.textContent = 'この端末では「まとめて保存」が使えません。下の画像を長押しして保存してください。';
-        return;
-      }
-
-      // iOSで click が飛ばない/遅延することがあるので touchend も拾う
       const handler = (e) => {
-        try {
-          if (e) {
-            e.preventDefault && e.preventDefault();
-            e.stopPropagation && e.stopPropagation();
-          }
-        } catch (_) {}
+        try { e.preventDefault(); e.stopPropagation(); } catch(_) {}
         shareAll();
       };
 
-      btn.onclick = handler;
-      try { btn.addEventListener('click', handler, { passive: false }); } catch (_) { btn.addEventListener('click', handler); }
-      try { btn.addEventListener('touchend', handler, { passive: false }); } catch (_) { btn.addEventListener('touchend', handler); }
+      // iOSでclickが死ぬ/遅延することがあるので多重に拾う
+      btn.addEventListener('pointerup', handler, { passive: false });
+      btn.addEventListener('touchend', handler, { passive: false });
+      btn.addEventListener('click', handler, { passive: false });
 
-      // 非対応っぽい場合は補足だけ少し出す（フォントは下のヒントと同じ）
-      if (!canShowShareButton()) {
-        msg.textContent = 'この端末/ブラウザでは「まとめて保存」が使えない場合があります。下の画像を長押しして保存してください。';
+      if (!navigator.canShare) {
+        // canShareが無い端末は“押して試す”しかないので、説明だけ軽く
+        msg.textContent = '「まとめて保存」を押すと共有メニューが開きます（開かない場合は下の画像を1枚ずつ保存してください）。';
       }
     })();
 
@@ -1102,7 +1116,7 @@ function updateExportButtonState() {
     topLeft.style.flexDirection = 'column';
     topLeft.style.gap = '0px'; // ← @をもうちょい上に寄せる
     topLeft.style.color = '#111';
-    topLeft.style.textShadow = '0 0 10px rgba(255,255,255,0.96), 0 0 3px rgba(255,255,255,0.90), 0 0 2px rgba(0,0,0,0.55), 0 2px 6px rgba(0,0,0,0.35)';
+    topLeft.style.textShadow = '0 0 22px rgba(255,255,255,0.995), 0 0 14px rgba(255,255,255,0.98), 0 0 9px rgba(255,255,255,0.96), 0 2px 4px rgba(255,255,255,0.92), 0 0 3px rgba(0,0,0,0.22)';
 
     if (userName) {
       const nameEl = document.createElement('div');
@@ -1202,7 +1216,7 @@ function updateExportButtonState() {
     rightBox.style.lineHeight = '1.45';
     rightBox.style.color = '#111';
     rightBox.style.opacity = '0.6';
-    rightBox.style.textShadow = '0 0 10px rgba(255,255,255,0.96), 0 0 3px rgba(255,255,255,0.90), 0 0 2px rgba(0,0,0,0.55), 0 2px 6px rgba(0,0,0,0.35)';
+    rightBox.style.textShadow = '0 0 22px rgba(255,255,255,0.995), 0 0 14px rgba(255,255,255,0.98), 0 0 9px rgba(255,255,255,0.96), 0 2px 4px rgba(255,255,255,0.92), 0 0 3px rgba(0,0,0,0.22)';
     
     // ★ここはあなたの元の表示を維持
     rightBox.innerHTML = `
@@ -1724,16 +1738,15 @@ function updateExportButtonState() {
         badge.textContent = `✔ ${totalCount}公演${pageCount > 1 ? `  (${i + 1}/${pageCount})` : ''}`;
       }
     });
-
     // ======================
     // 3) 画像化してプレビュー表示
     // ======================
     const urls = [];
     const fileNames = [];
-    const blobs = [];
+    const filesForShare = [];
 
     try {
-      const pad = String(pages.length).length >= 2 ? 2 : 2;
+      const pad = 2;
       for (let i = 0; i < pages.length; i++) {
         const p = pages[i];
         const canvas = await html2canvas(p.wrapper, { scale: 2 });
@@ -1741,10 +1754,12 @@ function updateExportButtonState() {
         const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
         if (!blob) continue;
 
-        blobs.push(blob);
         const url = URL.createObjectURL(blob);
         urls.push(url);
-        fileNames.push(`pg-live-log_${String(i + 1).padStart(pad, '0')}_of_${String(pages.length).padStart(pad, '0')}.png`);
+        const fname = `pg-live-log_${String(i + 1).padStart(pad, '0')}_of_${String(pages.length).padStart(pad, '0')}.png`;
+        fileNames.push(fname);
+        // ★プレビュー側で fetch(blob:) しないために File を渡す（無反応/固まり対策）
+        try { filesForShare.push(new File([blob], fname, { type: blob.type || 'image/png' })); } catch(e) {}
       }
     } catch (err) {
       console.error('画像生成エラー', err);
@@ -1753,16 +1768,7 @@ function updateExportButtonState() {
     exportArea.innerHTML = '';
 
     if (urls.length) {
-      // ★プレビュー側で fetch(blob:) せずに済むよう、File配列を直接渡す（端末依存の無反応対策）
-      try {
-        if (previewWin) {
-          const canFile = (typeof File === 'function');
-          if (canFile && blobs && blobs.length === fileNames.length) {
-            previewWin.__PGLL_EXPORT_FILES = blobs.map((b, i) => new File([b], fileNames[i], { type: b.type || 'image/png' }));
-          }
-        }
-      } catch (e) {}
-
+      try { previewWin && (previewWin.__PGLL_EXPORT_FILES = filesForShare); } catch (e) {}
       openPreviewTab(urls, fileNames, `pg-live-log_${pages.length}pages`, previewWin);
     } else {
       try { previewWin && previewWin.close(); } catch (_) {}
