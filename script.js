@@ -12,16 +12,12 @@ const INITIAL_URL_HAS_CHECKS = (() => {
   } catch {
     return false;
   }
-
-// 初回の検索文字列（stripStateParamsFromUrlで消されても復元に使う）
-const INITIAL_SEARCH = (() => {
-  try { return location.search || ''; } catch { return ''; }
-})();
-
 })();
 
 
 
+
+const INITIAL_SEARCH = location.search || '';
 document.addEventListener('DOMContentLoaded', () => {
 
   // ======================
@@ -385,10 +381,12 @@ function stripStateParamsFromUrl() {
   try {
     const url = new URL(location.href);
 
-    // チェック状態だけ消す（名前とXは残す）
+    // チェック状態消す
     url.searchParams.delete('b');
     url.searchParams.delete('r');
     url.searchParams.delete('d');
+    url.searchParams.delete('n');
+    url.searchParams.delete('x');
 
     // 履歴を増やさずURLだけ差し替え
     history.replaceState(null, '', url.toString());
@@ -399,7 +397,7 @@ function stripStateParamsFromUrl() {
 function restoreFromUrl(searchOverride) {
   try {
     // 新方式：? から読む（優先）
-    const search = (typeof searchOverride === 'string' ? searchOverride : INITIAL_SEARCH) || location.search || '';
+    const search = (typeof searchOverride === 'string') ? searchOverride : (location.search || '');
     const params = new URLSearchParams(search.startsWith('?') ? search.slice(1) : search);
 
     // name / x は共通
@@ -413,7 +411,6 @@ function restoreFromUrl(searchOverride) {
     // v3: r（レンジ）
     if (params.has('r')) {
       applyRanges(params.get('r') || '');
-      stripStateParamsFromUrl(); // ★追加：一度復元したらURLの状態を消す
       return;
     }
 
@@ -429,7 +426,6 @@ function restoreFromUrl(searchOverride) {
         cb.checked = (idx !== undefined) && checked.has(idx);
       });
       updateExportButtonState();
-      stripStateParamsFromUrl(); // ★追加
       return;
     }
 
@@ -437,7 +433,6 @@ function restoreFromUrl(searchOverride) {
     const b = params.get('b');
     if (b) {
       applyBitsetB64(b);
-      stripStateParamsFromUrl(); // ★追加
       return;
     }
 
@@ -1811,18 +1806,20 @@ function resolveBackground(bgValue, name) {
     .then(liveData => {
       renderList(liveData);
       buildTinyIndex(liveData);
-      restoreFromUrl();
-      // Android等で初回反映が間に合わないことがあるため、短い遅延で再トライ
-      if (INITIAL_URL_HAS_CHECKS) {
-        setTimeout(() => {
-          try {
-            if (document.querySelectorAll('.show-check:checked').length === 0) {
-              restoreFromUrl(INITIAL_SEARCH);
-              updateExportButtonState();
-            }
-          } catch (_) {}
-        }, 60);
-      }
+
+      // URL（QR）復元：Androidのタイミング差で空振りすることがあるので、初回URLを使って再試行する
+      restoreFromUrl(INITIAL_SEARCH);
+      const retryRestoreFromUrlIfEmpty = () => {
+        if (!INITIAL_URL_HAS_CHECKS) return;
+        const checkedCount = document.querySelectorAll('.show-check:checked').length;
+        if (checkedCount === 0) restoreFromUrl(INITIAL_SEARCH);
+      };
+      setTimeout(retryRestoreFromUrlIfEmpty, 0);
+      setTimeout(retryRestoreFromUrlIfEmpty, 80);
+
+      // 復元が落ち着いたらURLからチェック情報だけを消す（n/xは残る）
+      if (INITIAL_URL_HAS_CHECKS) setTimeout(stripStateParamsFromUrl, 200);
+
       restoreDraft();
       updateExportButtonState();
     });
