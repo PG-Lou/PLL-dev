@@ -850,8 +850,7 @@ function updateExportButtonState() {
     <div class="actions">
       <button id="shareBtn" class="btn btnPrimary" type="button" style="display:none">まとめて保存（共有）</button>
     </div>
-    <p class="hint">画像を長押し/右クリックで保存できます（端末/ブラウザによって表記が違います）。</p>
-    ${safeUrls.map((u, i) => `
+        ${safeUrls.map((u, i) => `
       <div class="imgbox">
         <img src="${u}" alt="export ${i + 1}">
       </div>
@@ -1108,7 +1107,7 @@ function updateExportButtonState() {
             let out = '';
             let seed = 12345;
             const rnd = () => (seed = (seed * 1103515245 + 12345) >>> 0) / 0xFFFFFFFF;
-            for (let i=0;i<260;i++){
+            for (let i=0;i<900;i++){
               const x = Math.floor(rnd()*600);
               const y = Math.floor(rnd()*1200);
               const r = rnd() < 0.18 ? 1.8 : (rnd() < 0.55 ? 1.2 : 0.9);
@@ -1116,7 +1115,7 @@ function updateExportButtonState() {
               out += `<circle cx="${x}" cy="${y}" r="${r}" fill="rgba(255,255,255,${a})"/>`;
             }
             // ちょい大きめの星
-            for (let i=0;i<26;i++){
+            for (let i=0;i<90;i++){
               const x = Math.floor(rnd()*600);
               const y = Math.floor(rnd()*1200);
               out += `<circle cx="${x}" cy="${y}" r="2.4" fill="rgba(255,255,255,0.9)"/>`;
@@ -1127,7 +1126,7 @@ function updateExportButtonState() {
         const url = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
         star.style.backgroundImage = `url("${url}")`;
         star.style.backgroundRepeat = 'repeat';
-        star.style.opacity = '0.55';
+        star.style.opacity = '0.9';
         wrapper.prepend(star);
       } catch(_) {}
     }
@@ -1164,12 +1163,13 @@ function resolveBackground(bgValue, name) {
   // Rainbow：明るいパステル “もやもや”
   if (/Rainbow/i.test(n)) {
     return [
-      'radial-gradient(circle at 15% 25%, rgba(255,170,200,0.55) 0%, transparent 55%)',
-      'radial-gradient(circle at 35% 45%, rgba(255,235,170,0.55) 0%, transparent 58%)',
-      'radial-gradient(circle at 55% 30%, rgba(190,255,210,0.55) 0%, transparent 56%)',
-      'radial-gradient(circle at 70% 55%, rgba(170,230,255,0.55) 0%, transparent 60%)',
-      'radial-gradient(circle at 85% 35%, rgba(210,185,255,0.55) 0%, transparent 58%)',
-      'linear-gradient(180deg, rgba(255,255,255,0.90) 0%, rgba(250,245,255,0.90) 70%, rgba(255,255,255,0.88) 100%)'
+      'radial-gradient(circle at 15% 25%, rgba(255,175,210,0.58) 0%, transparent 58%)',
+      'radial-gradient(circle at 35% 45%, rgba(255,240,185,0.58) 0%, transparent 60%)',
+      'radial-gradient(circle at 55% 30%, rgba(200,255,220,0.58) 0%, transparent 58%)',
+      'radial-gradient(circle at 70% 55%, rgba(180,235,255,0.58) 0%, transparent 62%)',
+      'radial-gradient(circle at 85% 35%, rgba(220,195,255,0.58) 0%, transparent 60%)',
+      'radial-gradient(ellipse at 50% 78%, rgba(0,0,0,0.07) 0%, transparent 62%)',
+      'linear-gradient(180deg, rgba(248,246,252,0.82) 0%, rgba(246,242,252,0.82) 70%, rgba(248,246,252,0.80) 100%)'
     ].join(',');
   }
 
@@ -1201,14 +1201,6 @@ function resolveBackground(bgValue, name) {
         el.style.textShadow =
           '0 0 2px rgba(255,255,255,0.99), 0 0 6px rgba(255,255,255,0.96), 0 0 14px rgba(255,255,255,0.86), 0 2px 14px rgba(0,0,0,0.18)';
         el.style.webkitTextStroke = '1.2px rgba(255,255,255,0.90)';
-      }
-    } else {
-        el.style.color = '#111';
-        el.style.opacity = '1';
-        // 白縁を太く（背景は敷かない）
-        el.style.textShadow =
-          '0 0 2px rgba(255,255,255,0.98), 0 0 6px rgba(255,255,255,0.97), 0 0 12px rgba(255,255,255,0.93), 0 2px 10px rgba(255,255,255,0.86), 0 2px 10px rgba(0,0,0,0.18)';
-        el.style.webkitTextStroke = '1.2px rgba(255,255,255,0.92)';
       }
     }
 
@@ -1261,6 +1253,8 @@ function resolveBackground(bgValue, name) {
     }
 
     const badge = document.createElement('div');
+    badge.style.color = '#111111';
+    badge.style.opacity = '1';
     badge.textContent = `✔ ${totalCount}公演${pageCount > 1 ? `  (${pageIndex}/${pageCount})` : ''}`;
     badge.style.flex = '0 0 auto';
     badge.style.display = 'inline-flex';
