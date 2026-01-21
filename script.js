@@ -16,8 +16,6 @@ const INITIAL_URL_HAS_CHECKS = (() => {
 
 
 
-
-const INITIAL_SEARCH = location.search || '';
 document.addEventListener('DOMContentLoaded', () => {
 
   // ======================
@@ -359,7 +357,26 @@ function makeShareUrl() {
     if (userName) params.set('n', userName);
     if (userX) params.set('x', userX);
 
-    return `${base}?${params.toString()}`;
+    const queryUrl = `${base}?${params.toString()}`;
+
+    // Android等の一部環境で「長いURLが途中で切れる」ケース対策：
+    // 一定以上長いときは、#s=（lz-string圧縮）にフォールバックする。
+    // ※index.html で lz-string を読み込んでいる前提（なければ #s0=）。
+    const URL_LEN_LIMIT = 1200;
+    if (queryUrl.length > URL_LEN_LIMIT) {
+      const payloadObj = { v: 1, n: userName, x: userX, c: getCheckedShowIds() };
+      const json = JSON.stringify(payloadObj);
+
+      if (typeof LZString !== 'undefined') {
+        const compressed = LZString.compressToEncodedURIComponent(json);
+        return `${base}#s=${compressed}`;
+      } else {
+        const encoded = encodeURIComponent(json);
+        return `${base}#s0=${encoded}`;
+      }
+    }
+
+    return queryUrl;
   }
 
   // 念のためのフォールバック（旧方式）
@@ -381,12 +398,10 @@ function stripStateParamsFromUrl() {
   try {
     const url = new URL(location.href);
 
-    // チェック状態消す
+    // チェック状態だけ消す（名前とXは残す）
     url.searchParams.delete('b');
     url.searchParams.delete('r');
     url.searchParams.delete('d');
-    url.searchParams.delete('n');
-    url.searchParams.delete('x');
 
     // 履歴を増やさずURLだけ差し替え
     history.replaceState(null, '', url.toString());
@@ -394,10 +409,10 @@ function stripStateParamsFromUrl() {
 }
 
   
-function restoreFromUrl(searchOverride) {
+function restoreFromUrl() {
   try {
     // 新方式：? から読む（優先）
-    const search = (typeof searchOverride === 'string') ? searchOverride : (location.search || '');
+    const search = location.search || '';
     const params = new URLSearchParams(search.startsWith('?') ? search.slice(1) : search);
 
     // name / x は共通
@@ -411,6 +426,7 @@ function restoreFromUrl(searchOverride) {
     // v3: r（レンジ）
     if (params.has('r')) {
       applyRanges(params.get('r') || '');
+      stripStateParamsFromUrl(); // ★追加：一度復元したらURLの状態を消す
       return;
     }
 
@@ -426,6 +442,7 @@ function restoreFromUrl(searchOverride) {
         cb.checked = (idx !== undefined) && checked.has(idx);
       });
       updateExportButtonState();
+      stripStateParamsFromUrl(); // ★追加
       return;
     }
 
@@ -433,6 +450,7 @@ function restoreFromUrl(searchOverride) {
     const b = params.get('b');
     if (b) {
       applyBitsetB64(b);
+      stripStateParamsFromUrl(); // ★追加
       return;
     }
 
@@ -1806,20 +1824,7 @@ function resolveBackground(bgValue, name) {
     .then(liveData => {
       renderList(liveData);
       buildTinyIndex(liveData);
-
-      // URL（QR）復元：Androidのタイミング差で空振りすることがあるので、初回URLを使って再試行する
-      restoreFromUrl(INITIAL_SEARCH);
-      const retryRestoreFromUrlIfEmpty = () => {
-        if (!INITIAL_URL_HAS_CHECKS) return;
-        const checkedCount = document.querySelectorAll('.show-check:checked').length;
-        if (checkedCount === 0) restoreFromUrl(INITIAL_SEARCH);
-      };
-      setTimeout(retryRestoreFromUrlIfEmpty, 0);
-      setTimeout(retryRestoreFromUrlIfEmpty, 80);
-
-      // 復元が落ち着いたらURLからチェック情報だけを消す（n/xは残る）
-      if (INITIAL_URL_HAS_CHECKS) setTimeout(stripStateParamsFromUrl, 200);
-
+      restoreFromUrl();
       restoreDraft();
       updateExportButtonState();
     });
