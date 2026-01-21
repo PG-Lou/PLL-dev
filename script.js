@@ -939,6 +939,26 @@ function updateExportButtonState() {
 
 // ===== 背景（テーマごとに上書き） =====
 function resolveBackground(bgValue, name) {
+// 追加カラー（ID指定）
+  if (bgValue === 'HMD_GOMEN') {
+    return "radial-gradient(circle at 22% 28%, rgba(255, 140, 60, 0.95) 0%, transparent 55%)," +
+           "radial-gradient(circle at 70% 24%, rgba(255, 190, 90, 0.85) 0%, transparent 60%)," +
+           "radial-gradient(circle at 45% 82%, rgba(255, 230, 140, 0.75) 0%, transparent 72%)," +
+           "#ff9b3f";
+  }
+  if (bgValue === 'ZOMBIES') {
+    return "radial-gradient(circle at 18% 25%, rgba(150, 230, 255, 0.90) 0%, transparent 55%)," +
+           "radial-gradient(circle at 70% 22%, rgba(200, 250, 255, 0.85) 0%, transparent 60%)," +
+           "radial-gradient(circle at 55% 78%, rgba(255, 185, 95, 0.85) 0%, transparent 70%)," +
+           "#c8f1ff";
+  }
+  if (bgValue === 'RACK') {
+    return "radial-gradient(circle at 20% 30%, rgba(190, 190, 190, 0.65) 0%, transparent 55%)," +
+           "radial-gradient(circle at 75% 25%, rgba(130, 130, 130, 0.55) 0%, transparent 60%)," +
+           "radial-gradient(circle at 50% 85%, rgba(70, 70, 70, 0.55) 0%, transparent 70%)," +
+           "#111111";
+  }
+
   const n = String(name || '');
 
 
