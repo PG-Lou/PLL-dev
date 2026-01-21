@@ -12,6 +12,12 @@ const INITIAL_URL_HAS_CHECKS = (() => {
   } catch {
     return false;
   }
+
+// 初回の検索文字列（stripStateParamsFromUrlで消されても復元に使う）
+const INITIAL_SEARCH = (() => {
+  try { return location.search || ''; } catch { return ''; }
+})();
+
 })();
 
 
@@ -390,10 +396,10 @@ function stripStateParamsFromUrl() {
 }
 
   
-function restoreFromUrl() {
+function restoreFromUrl(searchOverride) {
   try {
     // 新方式：? から読む（優先）
-    const search = location.search || '';
+    const search = (typeof searchOverride === 'string' ? searchOverride : INITIAL_SEARCH) || location.search || '';
     const params = new URLSearchParams(search.startsWith('?') ? search.slice(1) : search);
 
     // name / x は共通
@@ -1806,6 +1812,17 @@ function resolveBackground(bgValue, name) {
       renderList(liveData);
       buildTinyIndex(liveData);
       restoreFromUrl();
+      // Android等で初回反映が間に合わないことがあるため、短い遅延で再トライ
+      if (INITIAL_URL_HAS_CHECKS) {
+        setTimeout(() => {
+          try {
+            if (document.querySelectorAll('.show-check:checked').length === 0) {
+              restoreFromUrl(INITIAL_SEARCH);
+              updateExportButtonState();
+            }
+          } catch (_) {}
+        }, 60);
+      }
       restoreDraft();
       updateExportButtonState();
     });
