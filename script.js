@@ -745,7 +745,7 @@ function updateExportButtonState() {
         ].join(','),
       },
       {
-        label: '解放区',
+        label: '',
         // 夜空（濃紺 + 星 + うっすら星雲）
         value: [
           // 星（stopをちゃんと指定して「見える点」にする）
@@ -1032,8 +1032,8 @@ function updateExportButtonState() {
 function resolveBackground(bgValue, name) {
   const n = String(name || '');
 
-  // 解放区：夜空っぽい濃紺（★星はやらない：端末差が大きくて消える/崩れるため）
-  if (/解放区/.test(n)) {
+  // ：夜空っぽい濃紺（★星はやらない：端末差が大きくて消える/崩れるため）
+  if (//.test(n)) {
     return [
       'radial-gradient(ellipse at 30% 35%, rgba(90,130,255,0.16) 0%, transparent 58%)',
       'radial-gradient(ellipse at 72% 62%, rgba(180,120,255,0.12) 0%, transparent 62%)',
@@ -1080,7 +1080,7 @@ function resolveBackground(bgValue, name) {
     // ===== 枠外テキスト（名前/X/右下表記）の見やすさ調整 =====
     const isDarkTheme = (() => {
       const n = String(colorName || '');
-      return /ラック|解放区|Zombies|はみだし御免/i.test(n);
+      return /ラック||Zombies|はみだし御免/i.test(n);
     })();
 
     function applyOuterTextStyle(el, dark) {
@@ -1092,13 +1092,11 @@ function resolveBackground(bgValue, name) {
       if (dark) {
         // 暗背景：白文字（黒いもやもやは入れない）
         el.style.color = '#ffffff';
-        el.style.textShadow = 'none';
-        el.style.webkitTextStroke = '0px transparent';
+        el.style.textShadow = 'none'; el.style.webkitTextStroke = '0px transparent';
       } else {
         // 明背景：黒文字（縁取りは控えめ。白く見えすぎるのを防ぐ）
         el.style.color = '#111111';
-        el.style.textShadow = '0 1px 2px rgba(255,255,255,0.85), 0 0 6px rgba(255,255,255,0.55), 0 2px 10px rgba(0,0,0,0.10)';
-        el.style.webkitTextStroke = '0.6px rgba(255,255,255,0.75)';
+        el.style.textShadow = 'none'; el.style.webkitTextStroke = '0px transparent';
       }
     }
 
