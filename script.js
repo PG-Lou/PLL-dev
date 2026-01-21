@@ -709,67 +709,8 @@ function updateExportButtonState() {
   // ★イメージカラー追加（末尾に順番どおり追加 / もやもや系）
   //   - 既存の同名は上書きしない（例：ブレス）
   // ======================
-  (function addMoreBgOptions(){
-    const sel = document.getElementById('bg-select');
-    if (!sel) return;
-
-    const defs = [
-      {
-        label: 'はみだし御免',
-        // 暗めのレッドオレンジ（炎っぽい“もや”）
-        value: [
-          'radial-gradient(circle at 18% 30%, rgba(255,130,30,0.26) 0%, rgba(255,130,30,0) 58%)',
-          'radial-gradient(circle at 70% 34%, rgba(235,50,0,0.22) 0%, rgba(235,50,0,0) 60%)',
-          'radial-gradient(circle at 44% 82%, rgba(255,210,150,0.12) 0%, rgba(255,210,150,0) 62%)',
-          'linear-gradient(135deg, #1a0000 0%, #321000 48%, #4a1800 100%)'
-        ].join(','),
-      },
-      {
-        label: 'Zombies are standing out',
-        // 水色寄りの青〜オレンジ（もやもや）
-        value: [
-          'radial-gradient(circle at 18% 28%, rgba(170,245,255,0.28) 0%, rgba(170,245,255,0) 60%)',
-          'radial-gradient(circle at 62% 26%, rgba(110,220,255,0.24) 0%, rgba(110,220,255,0) 60%)',
-          'radial-gradient(circle at 84% 78%, rgba(255,175,90,0.26) 0%, rgba(255,175,90,0) 64%)',
-          'linear-gradient(135deg, #06122a 0%, #0b6b9a 45%, #a04600 100%)'
-        ].join(','),
-      },
-      {
-        label: 'ラック',
-        // グレー〜黒（煙っぽい“もや”）
-        value: [
-          'radial-gradient(circle at 26% 26%, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0) 60%)',
-          'radial-gradient(circle at 74% 34%, rgba(0,0,0,0.24) 0%, rgba(0,0,0,0) 64%)',
-          'radial-gradient(circle at 46% 84%, rgba(140,140,140,0.16) 0%, rgba(140,140,140,0) 64%)',
-          'linear-gradient(135deg, #666666 0%, #2c2c2c 55%, #000000 100%)'
-        ].join(','),
-      },
-      {
-        label: 'Rainbow',
-        // パステル虹（もっと明るめ / もやもや系）
-        value: [
-                    'radial-gradient(circle at 18% 28%, rgba(255, 182, 193, 0.55) 0%, rgba(255, 182, 193, 0) 62%)',
-          'radial-gradient(circle at 36% 22%, rgba(255, 224, 178, 0.58) 0%, rgba(255, 224, 178, 0) 64%)',
-          'radial-gradient(circle at 54% 26%, rgba(255, 249, 196, 0.56) 0%, rgba(255, 249, 196, 0) 66%)',
-          'radial-gradient(circle at 74% 30%, rgba(200, 255, 209, 0.52) 0%, rgba(200, 255, 209, 0) 66%)',
-          'radial-gradient(circle at 82% 55%, rgba(178, 235, 242, 0.58) 0%, rgba(178, 235, 242, 0) 70%)',
-          'radial-gradient(circle at 62% 74%, rgba(187, 222, 251, 0.56) 0%, rgba(187, 222, 251, 0) 70%)',
-          'radial-gradient(circle at 38% 82%, rgba(225, 190, 231, 0.55) 0%, rgba(225, 190, 231, 0) 72%)',
-          'radial-gradient(circle at 22% 62%, rgba(248, 187, 208, 0.48) 0%, rgba(248, 187, 208, 0) 72%)',
-          'linear-gradient(135deg, #f7fbff 0%, #fffaf7 42%, #f8fffb 100%)'
-        ].join(','),
-      },
-    ];
-
-    const existing = new Set(Array.from(sel.options).map(o => o.textContent || o.label || ''));
-    defs.forEach(d => {
-      if (existing.has(d.label)) return; // 既にあるなら触らない
-      const opt = document.createElement('option');
-      opt.textContent = d.label;
-      opt.value = d.value;
-      sel.appendChild(opt);
-    });
-  })();
+  (
+)();
 
   // ======================
   // 画像出力（分割対応）
