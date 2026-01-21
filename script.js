@@ -745,35 +745,6 @@ function updateExportButtonState() {
         ].join(','),
       },
       {
-        label: '',
-        // 夜空（濃紺 + 星 + うっすら星雲）
-        value: [
-          // 星（stopをちゃんと指定して「見える点」にする）
-          'radial-gradient(circle at 10% 16%, rgba(255,255,255,0.95) 0px, rgba(255,255,255,0.95) 1px, rgba(255,255,255,0) 2.2px)',
-          'radial-gradient(circle at 22% 30%, rgba(255,255,255,0.80) 0px, rgba(255,255,255,0.80) 1px, rgba(255,255,255,0) 2.2px)',
-          'radial-gradient(circle at 34% 18%, rgba(255,255,255,0.70) 0px, rgba(255,255,255,0.70) 1px, rgba(255,255,255,0) 2.2px)',
-          'radial-gradient(circle at 46% 26%, rgba(255,255,255,0.88) 0px, rgba(255,255,255,0.88) 1px, rgba(255,255,255,0) 2.2px)',
-          'radial-gradient(circle at 60% 14%, rgba(255,255,255,0.78) 0px, rgba(255,255,255,0.78) 1px, rgba(255,255,255,0) 2.2px)',
-          'radial-gradient(circle at 72% 30%, rgba(255,255,255,0.86) 0px, rgba(255,255,255,0.86) 1px, rgba(255,255,255,0) 2.2px)',
-          'radial-gradient(circle at 84% 18%, rgba(255,255,255,0.72) 0px, rgba(255,255,255,0.72) 1px, rgba(255,255,255,0) 2.2px)',
-          'radial-gradient(circle at 90% 34%, rgba(255,255,255,0.85) 0px, rgba(255,255,255,0.85) 1px, rgba(255,255,255,0) 2.2px)',
-          'radial-gradient(circle at 14% 64%, rgba(255,255,255,0.80) 0px, rgba(255,255,255,0.80) 1px, rgba(255,255,255,0) 2.2px)',
-          'radial-gradient(circle at 30% 78%, rgba(255,255,255,0.68) 0px, rgba(255,255,255,0.68) 1px, rgba(255,255,255,0) 2.2px)',
-          'radial-gradient(circle at 44% 70%, rgba(255,255,255,0.90) 0px, rgba(255,255,255,0.90) 1px, rgba(255,255,255,0) 2.2px)',
-          'radial-gradient(circle at 58% 86%, rgba(255,255,255,0.74) 0px, rgba(255,255,255,0.74) 1px, rgba(255,255,255,0) 2.2px)',
-          'radial-gradient(circle at 74% 76%, rgba(255,255,255,0.84) 0px, rgba(255,255,255,0.84) 1px, rgba(255,255,255,0) 2.2px)',
-          'radial-gradient(circle at 88% 70%, rgba(255,255,255,0.70) 0px, rgba(255,255,255,0.70) 1px, rgba(255,255,255,0) 2.2px)',
-
-          // 星雲っぽい“もや”
-          'radial-gradient(circle at 28% 44%, rgba(120,170,255,0.14) 0%, rgba(120,170,255,0) 60%)',
-          'radial-gradient(circle at 70% 58%, rgba(180,120,255,0.10) 0%, rgba(180,120,255,0) 62%)',
-          'radial-gradient(circle at 50% 78%, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0) 66%)',
-
-          // ベース
-          'linear-gradient(135deg, #020616 0%, #06133a 40%, #070d26 100%)'
-        ].join(','),
-      },
-      {
         label: 'Rainbow',
         // パステル虹（もっと明るめ / もやもや系）
         value: [
@@ -1072,7 +1043,7 @@ function resolveBackground(bgValue, name) {
     // ===== 枠外テキスト（名前/X/右下表記）の見やすさ調整 =====
     const isDarkTheme = (() => {
       const n = String(colorName || '');
-      return /ラック||Zombies|はみだし御免/i.test(n);
+      return /ラック|Zombies|はみだし御免/i.test(n);
     })();
 
     function applyOuterTextStyle(el, dark) {
@@ -1751,7 +1722,7 @@ function resolveBackground(bgValue, name) {
       const isMobile = /Android|iPhone|iPad|iPod/i.test(ua) || isIPadOS || (navigator.userAgentData && navigator.userAgentData.mobile);
 
       // モバイルはメモリ/描画制限で toBlob が null になりやすいので少し軽くする
-      const SCALE = isMobile ? 1.25 : 2;
+      const SCALE = 2;
 
       function dataURLToBlob(dataUrl) {
         try {
