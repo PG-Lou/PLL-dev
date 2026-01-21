@@ -967,18 +967,19 @@ function resolveBackground(bgValue, name) {
            "#2f2f2f";
   }
 
-  // Rainbow：パステル寄り（白みは足すが、濁らせない）
+  // Rainbow：流行り寄り・ほんのりくすみ（くすませすぎない）
   if (bgValue === 'RAINBOW') {
     return "linear-gradient(135deg," +
-           " rgba(255, 182, 193, 0.96) 0%," +   // pastel pink
-           " rgba(255, 223, 186, 0.96) 18%," +  // pastel peach
-           " rgba(255, 255, 186, 0.96) 36%," +  // pastel yellow
-           " rgba(186, 255, 201, 0.96) 54%," +  // pastel mint
-           " rgba(186, 225, 255, 0.96) 72%," +  // pastel sky
-           " rgba(215, 186, 255, 0.96) 90%)," + // pastel lavender
-           "radial-gradient(circle at 22% 28%, rgba(255, 255, 255, 0.12) 0%, transparent 60%)," +
-           "radial-gradient(circle at 78% 82%, rgba(255, 255, 255, 0.10) 0%, transparent 65%)";
+           " #f3b3ad 0%," +   // muted coral
+           " #f6d8a8 18%," +  // muted yellow
+           " #cfe7b8 36%," +  // muted green
+           " #c7e7df 54%," +  // muted mint
+           " #c9dff2 72%," +  // muted sky
+           " #d7cff2 90%)," + // muted lavender
+           "radial-gradient(circle at 22% 28%, rgba(255,255,255,0.10) 0%, transparent 60%)," +
+           "radial-gradient(circle at 78% 82%, rgba(255,255,255,0.08) 0%, transparent 65%)";
   }
+
 
   return bgValue;
 }
@@ -1844,6 +1845,7 @@ function resolveBackground(bgValue, name) {
   });
 
 });
+
 
 
 
