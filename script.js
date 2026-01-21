@@ -850,9 +850,9 @@ function updateExportButtonState() {
   <div class="wrap">
     <p class="hint">画像を長押し/右クリックで保存できます（端末/ブラウザによって表記が違います）。</p>
     <div class="actions">
-      <button id="shareBtn" class="btn btnPrimary" type="button" style="display:none">まとめて保存（共有）</button>
+      <button id="shareBtn" class="btn btnPrimary" type="button">まとめて保存（共有）</button>
     </div>
-    <div id="shareMsg" class="msg"></div>
+    <div id="shareMsg" class="msg" style="display:none"></div>
     ${safeUrls.map((u, i) => `
       <div class="imgbox">
         <img src="${u}" alt="export ${i + 1}">
@@ -864,128 +864,112 @@ function updateExportButtonState() {
     const urls = ${JSON.stringify(safeUrls)};
     const names = ${JSON.stringify(safeNames)};
 
-    // Web Share API の対応判定（ボタン表示用）
-    // NOTE: navigator.canShare({files}) は端末によって厳しめに false を返すことがあり、
-    // 「ボタンが出ない」原因になりがち。
-    // ここでは *ざっくり* 対応判定（navigator.share と File がある）で表示し、
-    // 実際の可否はクリック時に判定＆失敗時に案内する。
-    function canShowShareButton() {
-      try {
-        return !!navigator.share && typeof File === 'function' && typeof Blob === 'function';
-      } catch (e) {
-        return false;
-      }
+    function getEls() {
+      return {
+        btn: document.getElementById('shareBtn'),
+        msg: document.getElementById('shareMsg'),
+      };
+    }
+
+    function showFailMessage(text) {
+      const { msg } = getEls();
+      if (!msg) return;
+      msg.style.display = 'block';
+      msg.textContent = text || 'この端末では「まとめて保存」ができません。下の画像を長押しして保存してください。';
+    }
+
+    function clearMessage() {
+      const { msg } = getEls();
+      if (!msg) return;
+      msg.style.display = 'none';
+      msg.textContent = '';
     }
 
     async function shareAll() {
-      const btn = document.getElementById('shareBtn');
-      const msg = document.getElementById('shareMsg');
+      const { btn } = getEls();
       if (!btn) return;
-      const setMsg = (t) => { if (msg) msg.textContent = t; };
 
-      // 共有機能そのものが無い端末
-      if (!navigator.share) {
-        alert('この端末では「まとめて保存」に対応していません。\n下の画像を1枚ずつ保存してください。');
-        setMsg('この端末では「まとめて保存」が使えません。下の画像を長押しして保存してください。');
-        return;
-      }
-
+      // 押した瞬間に反応を出す（無反応UIを防ぐ）
       btn.disabled = true;
-      btn.textContent = '準備中…';
-      setMsg('共有の準備中…（端末によっては少し時間がかかります）');
+      const prevText = btn.textContent;
+      btn.textContent = '共有を開いています…';
+      clearMessage();
 
       try {
-        // できるだけ user gesture を保つため、先に opener から渡された File を使う
-        const pre = (window.__PGLL_SHARE_FILES && Array.isArray(window.__PGLL_SHARE_FILES)) ? window.__PGLL_SHARE_FILES : null;
-
-        // 画像のURLから Blob を取り出して File 化
-        const files = (pre && pre.length) ? pre : [];
-        if (!files.length) {
-          for (let i = 0; i < urls.length; i++) {
-            const u = urls[i];
-            let blob;
-            try {
-              const res = await fetch(u);
-              blob = await res.blob();
-            } catch (e) {
-              // fetch(blob:) が失敗する環境向け：img要素から取り直す
-              const img = document.querySelectorAll('img')[i];
-              if (!img) throw e;
-              const res2 = await fetch(img.currentSrc || img.src);
-              blob = await res2.blob();
-            }
-            const name = names[i] || ('pg-live-log_' + String(i + 1).padStart(2, '0') + '.png');
-            files.push(new File([blob], name, { type: blob.type || 'image/png' }));
-          }
+        // Web Share APIが無い
+        if (!navigator.share) {
+          showFailMessage('この端末/ブラウザでは「まとめて保存」ができません。下の画像を長押しして保存してください。');
+          return;
         }
 
-// Edge(PC)などで「黙って何も起きない」ケース対策：一定時間でタイムアウトしてフォールバック
-        const SHARE_TIMEOUT_MS = 1500;
-        let _shareTimer;
+        // opener から渡された File 配列を使う（押下後にfetchしない＝ユーザー操作扱いを切らさない）
+        const files = (window.__PGLL_SHARE_FILES && Array.isArray(window.__PGLL_SHARE_FILES)) ? window.__PGLL_SHARE_FILES : null;
+        if (!files || files.length === 0) {
+          showFailMessage('「まとめて保存」の準備に失敗しました。下の画像を長押しして保存してください。');
+          return;
+        }
+
+        // canShare は厳しすぎる端末があるので、ダメなら例外で拾う
+        // ただし明確に false の場合は即フォールバックする
+        try {
+          if (navigator.canShare && !navigator.canShare({ files })) {
+            showFailMessage('この端末では「まとめて保存」ができません。下の画像を長押しして保存してください。');
+            return;
+          }
+        } catch (_) {}
+
+        const SHARE_TIMEOUT_MS = 5000;
+        let timer;
 
         const sharePromise = navigator.share({
           files,
           title: 'PG LIVE LOG',
           text: '参戦履歴画像'
         });
+
         const timeoutPromise = new Promise((_, reject) => {
-          _shareTimer = setTimeout(() => reject(new Error('share-timeout')), SHARE_TIMEOUT_MS);
+          timer = setTimeout(() => reject(new Error('share-timeout')), SHARE_TIMEOUT_MS);
         });
 
-        await Promise.race([sharePromise, timeoutPromise]).finally(() => {
-          if (_shareTimer) clearTimeout(_shareTimer);
-        });
-
-        setMsg('共有メニューを開きました。写真アプリ等に保存してください。');
+        await Promise.race([sharePromise, timeoutPromise]);
+        // 成功時はメッセージ不要（共有画面が出るはず）
       } catch (e) {
-        const name = (e && e.name) ? e.name : '';
-        if (name === 'AbortError') {
-          setMsg('共有をキャンセルしました。下の画像を長押しして保存もできます。');
-        } else {
-          setMsg('この端末では「まとめて保存」が使えない可能性があります。下の画像を1枚ずつ保存してください。');
-          alert('「まとめて保存」でエラーが発生しました。\nこの端末では対応していない可能性があります。\n下の画像を1枚ずつ保存してください。');
-        }
+        // キャンセルも含め「共有が開かなかった」場合は必ず文言を出す
+        showFailMessage('この端末では「まとめて保存」ができません。下の画像を長押しして保存してください。');
       } finally {
-        btn.disabled = false;
-        btn.textContent = 'まとめて保存（共有）';
+        const { btn } = getEls();
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = prevText || 'まとめて保存（共有）';
+        }
       }
     }
 
-    // ボタンは常に表示（対応可否は押下時に案内）
     (function initShareUI(){
-      const btn = document.getElementById('shareBtn');
-      const msg = document.getElementById('shareMsg');
-      const setMsg = (t) => { if (msg) msg.textContent = t; };
+      const { btn, msg } = getEls();
       if (!btn) return;
 
-      // ★スマホなら必ず表示（非対応なら押下時にアラートへ）
-      const ua = navigator.userAgent || '';
-      const uadMobile = !!(navigator.userAgentData && navigator.userAgentData.mobile);
-      const isIPadOS = /Macintosh/i.test(ua) && (navigator.maxTouchPoints || 0) > 1;
-      const isIOS = /iPhone|iPad|iPod/i.test(ua) || isIPadOS;
-      const isAndroid = /Android/i.test(ua);
-      const isMobile = isIOS || isAndroid || uadMobile;
+      // ボタンはスマホ/PC問わず表示（押してダメなら文言で案内）
+      btn.style.display = 'block';
 
-      btn.style.display = isMobile ? 'block' : 'none';
-      if (!isMobile) return;
+      // 失敗時だけ表示したいので最初は消す
+      if (msg) {
+        msg.style.display = 'none';
+        msg.textContent = '';
+      }
 
-      setMsg(''); // 余計な文言は出さない
-
-      let locked = false;
+      // クリック/タップの取りこぼし対策
       const fire = (e) => {
-        try { e && e.preventDefault && e.preventDefault(); } catch(_){}
-        if (locked) return;
-        locked = true;
-        btn.textContent = '起動中…';
-        setTimeout(() => { locked = false; btn.textContent = 'まとめて保存（共有）'; }, 900);
-        shareAll().catch(()=>{});
+        try { e && e.preventDefault && e.preventDefault(); } catch (_) {}
+        shareAll().catch(() => {
+          showFailMessage('この端末では「まとめて保存」ができません。下の画像を長押しして保存してください。');
+        });
       };
 
-      btn.addEventListener('click', fire, { passive:false });
-      btn.addEventListener('pointerup', fire, { passive:false });
-      btn.addEventListener('touchend', fire, { passive:false });
+      btn.addEventListener('click', fire, { passive: false });
+      btn.addEventListener('touchend', fire, { passive: false });
+      btn.addEventListener('pointerup', fire, { passive: false });
     })();
-
 
     window.addEventListener('beforeunload', () => {
       urls.forEach(u => { try { URL.revokeObjectURL(u); } catch(e){} });
@@ -1106,11 +1090,10 @@ function resolveBackground(bgValue, name) {
       el.style.fontWeight = el.style.fontWeight || '600';
 
       if (dark) {
-        // 暗背景：白文字 + 黒縁（太め）
+        // 暗背景：白文字（黒いもやもやは入れない）
         el.style.color = '#ffffff';
-        el.style.textShadow =
-          '0 0 2px rgba(0,0,0,0.98), 0 0 6px rgba(0,0,0,0.92), 0 0 14px rgba(0,0,0,0.75), 0 2px 18px rgba(0,0,0,0.55)';
-        el.style.webkitTextStroke = '1.4px rgba(0,0,0,0.80)';
+        el.style.textShadow = 'none';
+        el.style.webkitTextStroke = '0px transparent';
       } else {
         // 明背景：黒文字（縁取りは控えめ。白く見えすぎるのを防ぐ）
         el.style.color = '#111111';
