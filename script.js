@@ -947,34 +947,40 @@ function resolveBackground(bgValue, name) {
            "#ff6a3a";
   }
 
-  // Zombies：右上オレンジ、左下暗め水色
+  // Zombies：右上→左下に オレンジ→水色 のグラデーション
+  //   ※radial だと「塊」に見えやすいので linear を主役にして “面” を作る
   if (bgValue === 'ZOMBIES') {
-    return "radial-gradient(circle at 75% 20%, rgba(255, 160, 80, 0.9) 0%, transparent 55%)," +
-           "radial-gradient(circle at 25% 75%, rgba(120, 190, 220, 0.85) 0%, transparent 65%)," +
-           "#6fb3d2";
+    return "linear-gradient(to bottom left," +
+           " rgba(255, 170, 90, 0.98) 0%," +
+           " rgba(255, 205, 150, 0.88) 32%," +
+           " rgba(170, 225, 255, 0.88) 68%," +
+           " rgba(110, 190, 235, 0.98) 100%)," +
+           "radial-gradient(circle at 78% 22%, rgba(255, 170, 90, 0.55) 0%, transparent 55%)," +
+           "radial-gradient(circle at 22% 78%, rgba(120, 200, 240, 0.55) 0%, transparent 60%)";
   }
 
-  // ラック：グレー要素強化
+  // ラック：黒すぎるので “チャコール寄りのグレー” を混ぜる
   if (bgValue === 'RACK') {
-    return "radial-gradient(circle at 30% 30%, rgba(200, 200, 200, 0.7) 0%, transparent 55%)," +
-           "radial-gradient(circle at 70% 40%, rgba(150, 150, 150, 0.6) 0%, transparent 60%)," +
-           "radial-gradient(circle at 50% 85%, rgba(90, 90, 90, 0.6) 0%, transparent 70%)," +
-           "#1a1a1a";
+    return "radial-gradient(circle at 30% 28%, rgba(235, 235, 235, 0.55) 0%, transparent 58%)," +
+           "radial-gradient(circle at 72% 40%, rgba(170, 170, 170, 0.55) 0%, transparent 62%)," +
+           "radial-gradient(circle at 50% 86%, rgba(120, 120, 120, 0.45) 0%, transparent 72%)," +
+           "#2f2f2f";
   }
 
-  // Rainbow：パステル虹
+  // Rainbow：もっとパステル寄り（彩度↓・白み↑）
   if (bgValue === 'RAINBOW') {
-    return "radial-gradient(circle at 15% 25%, rgba(255, 170, 190, 0.6) 0%, transparent 55%)," +
-           "radial-gradient(circle at 35% 20%, rgba(255, 220, 150, 0.55) 0%, transparent 58%)," +
-           "radial-gradient(circle at 55% 22%, rgba(255, 245, 170, 0.55) 0%, transparent 60%)," +
-           "radial-gradient(circle at 70% 30%, rgba(190, 245, 200, 0.55) 0%, transparent 62%)," +
-           "radial-gradient(circle at 78% 55%, rgba(170, 220, 255, 0.55) 0%, transparent 65%)," +
-           "radial-gradient(circle at 62% 80%, rgba(200, 190, 255, 0.55) 0%, transparent 70%)," +
-           "#f6f2ff";
+    return "radial-gradient(circle at 15% 25%, rgba(255, 205, 215, 0.50) 0%, transparent 58%)," +
+           "radial-gradient(circle at 35% 20%, rgba(255, 235, 205, 0.48) 0%, transparent 60%)," +
+           "radial-gradient(circle at 55% 22%, rgba(255, 252, 215, 0.46) 0%, transparent 62%)," +
+           "radial-gradient(circle at 70% 30%, rgba(215, 250, 225, 0.46) 0%, transparent 64%)," +
+           "radial-gradient(circle at 78% 55%, rgba(205, 235, 255, 0.48) 0%, transparent 68%)," +
+           "radial-gradient(circle at 62% 80%, rgba(230, 215, 255, 0.46) 0%, transparent 72%)," +
+           "#fbf9ff";
   }
 
   return bgValue;
 }
+
 
   function createExportWrapper({ bg, colorName, totalCount, pageIndex, pageCount, shareUrl, height }) {
     const WIDTH = 390;
