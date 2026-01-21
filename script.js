@@ -958,76 +958,34 @@ function updateExportButtonState() {
       const setMsg = (t) => { if (msg) msg.textContent = t; };
       if (!btn) return;
 
-      // ★PCは絶対出さない。iPadOS（Macintosh表記 + touch）もモバイルとして扱う。
+      // ★スマホなら必ず表示（非対応なら押下時にアラートへ）
       const ua = navigator.userAgent || '';
       const uadMobile = !!(navigator.userAgentData && navigator.userAgentData.mobile);
-
       const isIPadOS = /Macintosh/i.test(ua) && (navigator.maxTouchPoints || 0) > 1;
       const isIOS = /iPhone|iPad|iPod/i.test(ua) || isIPadOS;
       const isAndroid = /Android/i.test(ua);
       const isMobile = isIOS || isAndroid || uadMobile;
 
-      const isDesktopOS =
-        /Windows NT|X11|CrOS/i.test(ua) ||
-        (/Macintosh/i.test(ua) && !isIPadOS);
+      btn.style.display = isMobile ? 'block' : 'none';
+      if (!isMobile) return;
 
-      const shouldShow = isMobile && !isDesktopOS && !!navigator.share;
+      setMsg(''); // 余計な文言は出さない
 
-      if (!shouldShow) {
-        btn.style.display = 'none';
-        // 共有が無い/PC のときはガイドだけ（msgが無ければ何もしない）
-        setMsg('画像を長押しして保存してください。');
-        return;
-      }
-
-      btn.style.display = 'block';
-
-      // ★「押したのに無反応」を潰す：押下検知を即表示して shareAll を呼ぶ
       let locked = false;
       const fire = (e) => {
         try { e && e.preventDefault && e.preventDefault(); } catch(_){}
         if (locked) return;
         locked = true;
         btn.textContent = '起動中…';
-        setTimeout(() => { locked = false; btn.textContent = 'まとめて保存（共有）'; }, 1200);
+        setTimeout(() => { locked = false; btn.textContent = 'まとめて保存（共有）'; }, 900);
         shareAll().catch(()=>{});
       };
 
       btn.addEventListener('click', fire, { passive:false });
       btn.addEventListener('pointerup', fire, { passive:false });
       btn.addEventListener('touchend', fire, { passive:false });
-    })();;
-      const small = (() => { try { return Math.min(innerWidth, innerHeight) < 900; } catch(e){ return false; } })();
-
-      const canUseShare = !!navigator.share;
-      const shouldShow = isMobileOS && !isProbablyDesktop && (coarse || small) && canUseShare;
-
-      if (!shouldShow) {
-        btn.style.display = 'none';
-        setMsg('画像を長押しして保存してください。');
-        return;
-      }
-
-      btn.style.display = 'block';
-
-      // ★「押したのに無反応」を潰す：押下検知を即表示
-      let locked = false;
-      const fire = (e) => {
-        try { e && e.preventDefault && e.preventDefault(); } catch(_){}
-        if (locked) return;
-        locked = true;
-        // すぐ見える反応を出す（share() が死んでも「押した」は分かる）
-        btn.textContent = '起動中…';
-        setMsg('共有を起動しています…');
-        Promise.resolve()
-          .then(() => shareAll())
-          .finally(() => { locked = false; });
-      };
-
-      btn.addEventListener('click', fire, { passive: false });
-      btn.addEventListener('touchend', fire, { passive: false });
-      btn.addEventListener('pointerup', fire, { passive: false });
     })();
+
 
     window.addEventListener('beforeunload', () => {
       urls.forEach(u => { try { URL.revokeObjectURL(u); } catch(e){} });
@@ -1084,6 +1042,46 @@ function updateExportButtonState() {
     return blocks;
   }
 
+
+
+// ===== 背景（テーマごとに上書き） =====
+function resolveBackground(bgValue, name) {
+  const n = String(name || '');
+
+  // 解放区：夜空っぽい濃紺（★星はやらない：端末差が大きくて消える/崩れるため）
+  if (/解放区/.test(n)) {
+    return [
+      'radial-gradient(ellipse at 30% 35%, rgba(90,130,255,0.16) 0%, transparent 58%)',
+      'radial-gradient(ellipse at 72% 62%, rgba(180,120,255,0.12) 0%, transparent 62%)',
+      'linear-gradient(180deg, #070B1B 0%, #06112A 45%, #040A18 100%)'
+    ].join(',');
+  }
+
+  // Rainbow：パステル虹 “もやもや” （白っぽすぎない・虹っぽさ優先）
+  if (/Rainbow/i.test(n)) {
+    return [
+      // 赤〜ピンク
+      'radial-gradient(circle at 18% 28%, rgba(255, 170, 190, 0.55) 0%, rgba(255, 170, 190, 0) 62%)',
+      // オレンジ
+      'radial-gradient(circle at 36% 22%, rgba(255, 205, 155, 0.52) 0%, rgba(255, 205, 155, 0) 64%)',
+      // 黄
+      'radial-gradient(circle at 54% 26%, rgba(255, 245, 170, 0.50) 0%, rgba(255, 245, 170, 0) 66%)',
+      // 緑
+      'radial-gradient(circle at 74% 30%, rgba(190, 255, 210, 0.48) 0%, rgba(190, 255, 210, 0) 66%)',
+      // 水色
+      'radial-gradient(circle at 82% 55%, rgba(175, 235, 255, 0.52) 0%, rgba(175, 235, 255, 0) 70%)',
+      // 青
+      'radial-gradient(circle at 62% 74%, rgba(175, 205, 255, 0.50) 0%, rgba(175, 205, 255, 0) 70%)',
+      // 紫
+      'radial-gradient(circle at 38% 82%, rgba(220, 185, 255, 0.52) 0%, rgba(220, 185, 255, 0) 72%)',
+      // ベース（ほんのり）
+      'linear-gradient(135deg, rgba(248,246,252,0.70) 0%, rgba(250,248,246,0.68) 45%, rgba(246,250,248,0.70) 100%)'
+    ].join(',');
+  }
+
+  return bgValue;
+}
+
   function createExportWrapper({ bg, colorName, totalCount, pageIndex, pageCount, shareUrl, height }) {
     const WIDTH = 390;
     const HEIGHT = Number.isFinite(height) ? Math.max(300, Math.floor(height)) : 844;
@@ -1093,92 +1091,7 @@ function updateExportButtonState() {
     wrapper.style.height = HEIGHT + 'px';
     wrapper.style.position = 'relative';
     wrapper.style.background = resolveBackground(bg, colorName);
-
-    // ★解放区は星が「確実に見える」ように別レイヤーで重ねる（CSSグラデの点は端末差で消えがち）
-    if (colorName === '解放区') {
-      try {
-        const star = document.createElement('div');
-        star.style.position = 'absolute';
-        star.style.inset = '0';
-        star.style.pointerEvents = 'none';
-        star.style.zIndex = '0';
-        // SVGの星（点）をデータURLで生成：大小混ぜて密度高め
-        const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="1200" viewBox="0 0 600 1200">
-          <rect width="600" height="1200" fill="transparent"/>
-          ${(() => {
-            // deterministic-ish: fixed seed
-            let out = '';
-            let seed = 12345;
-            const rnd = () => (seed = (seed * 1103515245 + 12345) >>> 0) / 0xFFFFFFFF;
-            for (let i=0;i<900;i++){
-              const x = Math.floor(rnd()*600);
-              const y = Math.floor(rnd()*1200);
-              const r = rnd() < 0.18 ? 1.8 : (rnd() < 0.55 ? 1.2 : 0.9);
-              const a = rnd() < 0.25 ? 0.9 : 0.65;
-              out += `<circle cx="${x}" cy="${y}" r="${r}" fill="rgba(255,255,255,${a})"/>`;
-            }
-            // ちょい大きめの星
-            for (let i=0;i<90;i++){
-              const x = Math.floor(rnd()*600);
-              const y = Math.floor(rnd()*1200);
-              out += `<circle cx="${x}" cy="${y}" r="2.4" fill="rgba(255,255,255,0.9)"/>`;
-            }
-            return out;
-          })()}
-        </svg>`;
-        const url = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
-        star.style.backgroundImage = `url("${url}")`;
-        star.style.backgroundRepeat = 'repeat';
-        star.style.opacity = '0.9';
-        wrapper.prepend(star);
-      } catch(_) {}
-    }
     wrapper.style.fontFamily = 'Helvetica, Arial, sans-serif';
-
-
-        wrapper.style.fontFamily = 'Helvetica, Arial, sans-serif';
-
-
-// ===== 背景（テーマごとに上書き） =====
-function resolveBackground(bgValue, name) {
-  const n = String(name || '');
-  // 解放区：夜空＋星（星を増量）
-  if (/解放区/.test(n)) {
-    return [
-      'radial-gradient(circle at 12% 18%, rgba(255,255,255,0.95) 0 1.6px, transparent 1.8px)',
-      'radial-gradient(circle at 28% 32%, rgba(255,255,255,0.85) 0 1.2px, transparent 1.4px)',
-      'radial-gradient(circle at 44% 22%, rgba(255,255,255,0.75) 0 1.0px, transparent 1.2px)',
-      'radial-gradient(circle at 62% 28%, rgba(255,255,255,0.90) 0 1.6px, transparent 1.8px)',
-      'radial-gradient(circle at 78% 16%, rgba(255,255,255,0.70) 0 1.0px, transparent 1.2px)',
-      'radial-gradient(circle at 86% 38%, rgba(255,255,255,0.80) 0 1.3px, transparent 1.5px)',
-      'radial-gradient(circle at 18% 58%, rgba(255,255,255,0.72) 0 1.0px, transparent 1.2px)',
-      'radial-gradient(circle at 36% 70%, rgba(255,255,255,0.88) 0 1.5px, transparent 1.7px)',
-      'radial-gradient(circle at 54% 62%, rgba(255,255,255,0.76) 0 1.1px, transparent 1.3px)',
-      'radial-gradient(circle at 72% 72%, rgba(255,255,255,0.86) 0 1.4px, transparent 1.6px)',
-      'radial-gradient(circle at 90% 60%, rgba(255,255,255,0.72) 0 1.0px, transparent 1.2px)',
-      // 星雲もや
-      'radial-gradient(ellipse at 30% 40%, rgba(120,160,255,0.18) 0%, transparent 60%)',
-      'radial-gradient(ellipse at 70% 65%, rgba(160,110,255,0.14) 0%, transparent 62%)',
-      'linear-gradient(180deg, #070B1B 0%, #06112A 45%, #040A18 100%)'
-    ].join(',');
-  }
-
-  // Rainbow：明るいパステル “もやもや”
-  if (/Rainbow/i.test(n)) {
-    return [
-      'radial-gradient(circle at 15% 25%, rgba(255,175,210,0.58) 0%, transparent 58%)',
-      'radial-gradient(circle at 35% 45%, rgba(255,240,185,0.58) 0%, transparent 60%)',
-      'radial-gradient(circle at 55% 30%, rgba(200,255,220,0.58) 0%, transparent 58%)',
-      'radial-gradient(circle at 70% 55%, rgba(180,235,255,0.58) 0%, transparent 62%)',
-      'radial-gradient(circle at 85% 35%, rgba(220,195,255,0.58) 0%, transparent 60%)',
-      'radial-gradient(ellipse at 50% 78%, rgba(0,0,0,0.07) 0%, transparent 62%)',
-      'linear-gradient(180deg, rgba(248,246,252,0.82) 0%, rgba(246,242,252,0.82) 70%, rgba(248,246,252,0.80) 100%)'
-    ].join(',');
-  }
-
-  // それ以外はそのまま
-  return bgValue;
-}
 
     // ===== 枠外テキスト（名前/X/右下表記）の見やすさ調整 =====
     const isDarkTheme = (() => {
@@ -1199,11 +1112,10 @@ function resolveBackground(bgValue, name) {
           '0 0 2px rgba(0,0,0,0.98), 0 0 6px rgba(0,0,0,0.92), 0 0 14px rgba(0,0,0,0.75), 0 2px 18px rgba(0,0,0,0.55)';
         el.style.webkitTextStroke = '1.4px rgba(0,0,0,0.80)';
       } else {
-        // 明背景：黒文字 + 白縁（太め）
+        // 明背景：黒文字（縁取りは控えめ。白く見えすぎるのを防ぐ）
         el.style.color = '#111111';
-        el.style.textShadow =
-          '0 0 2px rgba(255,255,255,0.99), 0 0 6px rgba(255,255,255,0.96), 0 0 14px rgba(255,255,255,0.86), 0 2px 14px rgba(0,0,0,0.18)';
-        el.style.webkitTextStroke = '1.2px rgba(255,255,255,0.90)';
+        el.style.textShadow = '0 1px 2px rgba(255,255,255,0.85), 0 0 6px rgba(255,255,255,0.55), 0 2px 10px rgba(0,0,0,0.10)';
+        el.style.webkitTextStroke = '0.6px rgba(255,255,255,0.75)';
       }
     }
 
