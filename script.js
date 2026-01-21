@@ -975,7 +975,7 @@ function resolveBackground(bgValue, name) {
     wrapper.style.width = WIDTH + 'px';
     wrapper.style.height = HEIGHT + 'px';
     wrapper.style.position = 'relative';
-    wrapper.style.background = resolveBackground(bg, colorName);
+    wrapper.style.background = bg;
     wrapper.style.fontFamily = 'Helvetica, Arial, sans-serif';
 
     // ===== 枠外テキスト（名前/X/右下表記）の見やすさ調整 =====
@@ -1554,7 +1554,7 @@ function resolveBackground(bgValue, name) {
     };
 
     const bgSelect = document.getElementById('bg-select');
-    const bg = bgSelect.value;
+    const bg = resolveBackground(bgSelect.value);
     const selectedOption = bgSelect.options[bgSelect.selectedIndex];
     const colorName = selectedOption.dataset.label || selectedOption.text;
 
