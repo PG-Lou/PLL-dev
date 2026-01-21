@@ -777,14 +777,15 @@ function updateExportButtonState() {
         label: 'Rainbow',
         // パステル虹（もっと明るめ / もやもや系）
         value: [
-          'radial-gradient(circle at 18% 30%, rgba(255,205,225,0.70) 0%, rgba(255,205,225,0) 66%)',
-          'radial-gradient(circle at 36% 24%, rgba(255,235,195,0.68) 0%, rgba(255,235,195,0) 66%)',
-          'radial-gradient(circle at 54% 28%, rgba(255,250,205,0.64) 0%, rgba(255,250,205,0) 68%)',
-          'radial-gradient(circle at 72% 30%, rgba(205,255,225,0.66) 0%, rgba(205,255,225,0) 68%)',
-          'radial-gradient(circle at 80% 56%, rgba(205,240,255,0.70) 0%, rgba(205,240,255,0) 70%)',
-          'radial-gradient(circle at 56% 78%, rgba(230,205,255,0.66) 0%, rgba(230,205,255,0) 70%)',
-          'radial-gradient(circle at 30% 80%, rgba(255,220,250,0.62) 0%, rgba(255,220,250,0) 70%)',
-          'linear-gradient(135deg, #fffafc 0%, #fbfeff 45%, #fffef8 100%)'
+                    'radial-gradient(circle at 18% 28%, rgba(255, 182, 193, 0.55) 0%, rgba(255, 182, 193, 0) 62%)',
+          'radial-gradient(circle at 36% 22%, rgba(255, 224, 178, 0.58) 0%, rgba(255, 224, 178, 0) 64%)',
+          'radial-gradient(circle at 54% 26%, rgba(255, 249, 196, 0.56) 0%, rgba(255, 249, 196, 0) 66%)',
+          'radial-gradient(circle at 74% 30%, rgba(200, 255, 209, 0.52) 0%, rgba(200, 255, 209, 0) 66%)',
+          'radial-gradient(circle at 82% 55%, rgba(178, 235, 242, 0.58) 0%, rgba(178, 235, 242, 0) 70%)',
+          'radial-gradient(circle at 62% 74%, rgba(187, 222, 251, 0.56) 0%, rgba(187, 222, 251, 0) 70%)',
+          'radial-gradient(circle at 38% 82%, rgba(225, 190, 231, 0.55) 0%, rgba(225, 190, 231, 0) 72%)',
+          'radial-gradient(circle at 22% 62%, rgba(248, 187, 208, 0.48) 0%, rgba(248, 187, 208, 0) 72%)',
+          'linear-gradient(135deg, #f7fbff 0%, #fffaf7 42%, #f8fffb 100%)'
         ].join(','),
       },
     ];
@@ -847,10 +848,12 @@ function updateExportButtonState() {
 </head>
 <body>
   <div class="wrap">
+    <p class="hint">画像を長押し/右クリックで保存できます（端末/ブラウザによって表記が違います）。</p>
     <div class="actions">
       <button id="shareBtn" class="btn btnPrimary" type="button" style="display:none">まとめて保存（共有）</button>
     </div>
-        ${safeUrls.map((u, i) => `
+    <div id="shareMsg" class="msg"></div>
+    ${safeUrls.map((u, i) => `
       <div class="imgbox">
         <img src="${u}" alt="export ${i + 1}">
       </div>
@@ -1245,7 +1248,7 @@ function resolveBackground(bgValue, name) {
       xEl.style.fontSize = '13px';
       xEl.style.fontWeight = '500';
       xEl.style.lineHeight = '1.4';
-      xEl.style.opacity = '0.85';
+      xEl.style.opacity = '1';
       xEl.style.whiteSpace = 'nowrap';
       xEl.style.overflow = 'hidden';
       xEl.style.textOverflow = 'clip';
@@ -1858,12 +1861,40 @@ function resolveBackground(bgValue, name) {
     const shareFiles = [];
 
     try {
-      const pad = String(pages.length).length >= 2 ? 2 : 2;
+      const ua = navigator.userAgent || '';
+      const isIPadOS = /Macintosh/i.test(ua) && (navigator.maxTouchPoints || 0) > 1;
+      const isMobile = /Android|iPhone|iPad|iPod/i.test(ua) || isIPadOS || (navigator.userAgentData && navigator.userAgentData.mobile);
+
+      // モバイルはメモリ/描画制限で toBlob が null になりやすいので少し軽くする
+      const SCALE = isMobile ? 1.25 : 2;
+
+      function dataURLToBlob(dataUrl) {
+        try {
+          const parts = String(dataUrl).split(',');
+          if (parts.length < 2) return null;
+          const m = parts[0].match(/data:(.*?);base64/);
+          const mime = m ? m[1] : 'image/png';
+          const bin = atob(parts[1]);
+          const len = bin.length;
+          const buf = new Uint8Array(len);
+          for (let i = 0; i < len; i++) buf[i] = bin.charCodeAt(i);
+          return new Blob([buf], { type: mime });
+        } catch (e) {
+          return null;
+        }
+      }
+
+      const pad = 2;
       for (let i = 0; i < pages.length; i++) {
         const p = pages[i];
-        const canvas = await html2canvas(p.wrapper, { scale: 2 });
+        const canvas = await html2canvas(p.wrapper, { scale: SCALE });
 
-        const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+        let blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+        if (!blob) {
+          // iOS系で toBlob が null になることがあるので dataURL フォールバック
+          const dataUrl = canvas.toDataURL('image/png');
+          blob = dataURLToBlob(dataUrl);
+        }
         if (!blob) continue;
 
         const url = URL.createObjectURL(blob);
@@ -1881,7 +1912,26 @@ function resolveBackground(bgValue, name) {
     if (urls.length) {
       openPreviewTab(urls, fileNames, `pg-live-log_${pages.length}pages`, previewWin, shareFiles);
     } else {
-      try { previewWin && previewWin.close(); } catch (_) {}
+      // 画像生成に失敗した場合：プレビューを閉じずにエラーメッセージを表示（スマホで“開いてすぐ閉じる”対策）
+      try {
+        if (previewWin && previewWin.document) {
+          previewWin.document.open();
+          previewWin.document.write(`<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+            <title>PG LIVE LOG export</title>
+            <style>body{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:#f2f4f8;margin:0;padding:18px}
+            .card{max-width:520px;margin:0 auto;background:#fff;border-radius:14px;padding:16px;box-shadow:0 8px 20px rgba(0,0,0,.08)}
+            h1{font-size:16px;margin:0 0 10px}p{margin:0 0 10px;color:#333;font-size:14px;line-height:1.5}
+            code{background:#f6f7fb;padding:2px 6px;border-radius:6px}</style>
+            <div class="card">
+              <h1>画像の生成に失敗しました</h1>
+              <p>スマホのブラウザだと、画像生成（canvas）が失敗することがあります。</p>
+              <p>対処：</p>
+              <p>・端末の標準ブラウザ（Safari/Chrome）で開く<br>・他のアプリ内ブラウザ（X/Instagram等）ではなく、ブラウザで開く</p>
+            </div>`);
+          previewWin.document.close();
+          try { previewWin.focus && previewWin.focus(); } catch(_) {}
+        }
+      } catch (_) {}
     }
 
   }
