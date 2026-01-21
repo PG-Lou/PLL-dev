@@ -850,7 +850,6 @@ function updateExportButtonState() {
     <div class="actions">
       <button id="shareBtn" class="btn btnPrimary" type="button" style="display:none">まとめて保存（共有）</button>
     </div>
-    <p id="shareMsg" class="msg">「まとめて保存」を押すと、端末の共有メニューが開きます（写真に追加など）。</p>
     <p class="hint">画像を長押し/右クリックで保存できます（端末/ブラウザによって表記が違います）。</p>
     ${safeUrls.map((u, i) => `
       <div class="imgbox">
@@ -879,18 +878,19 @@ function updateExportButtonState() {
     async function shareAll() {
       const btn = document.getElementById('shareBtn');
       const msg = document.getElementById('shareMsg');
-      if (!btn || !msg) return;
+      if (!btn) return;
+      const setMsg = (t) => { if (msg) msg.textContent = t; };
 
       // 共有機能そのものが無い端末
       if (!navigator.share) {
         alert('この端末では「まとめて保存」に対応していません。\n下の画像を1枚ずつ保存してください。');
-        msg.textContent = 'この端末では「まとめて保存」が使えません。下の画像を長押しして保存してください。';
+        setMsg('この端末では「まとめて保存」が使えません。下の画像を長押しして保存してください。');
         return;
       }
 
       btn.disabled = true;
       btn.textContent = '準備中…';
-      msg.textContent = '共有の準備中…（端末によっては少し時間がかかります）';
+      setMsg('共有の準備中…（端末によっては少し時間がかかります）');
 
       try {
         // できるだけ user gesture を保つため、先に opener から渡された File を使う
@@ -934,13 +934,13 @@ function updateExportButtonState() {
           if (_shareTimer) clearTimeout(_shareTimer);
         });
 
-        msg.textContent = '共有メニューを開きました。写真アプリ等に保存してください。';
+        setMsg('共有メニューを開きました。写真アプリ等に保存してください。');
       } catch (e) {
         const name = (e && e.name) ? e.name : '';
         if (name === 'AbortError') {
-          msg.textContent = '共有をキャンセルしました。下の画像を長押しして保存もできます。';
+          setMsg('共有をキャンセルしました。下の画像を長押しして保存もできます。');
         } else {
-          msg.textContent = 'この端末では「まとめて保存」が使えない可能性があります。下の画像を1枚ずつ保存してください。';
+          setMsg('この端末では「まとめて保存」が使えない可能性があります。下の画像を1枚ずつ保存してください。');
           alert('「まとめて保存」でエラーが発生しました。\nこの端末では対応していない可能性があります。\n下の画像を1枚ずつ保存してください。');
         }
       } finally {
@@ -953,13 +953,48 @@ function updateExportButtonState() {
     (function initShareUI(){
       const btn = document.getElementById('shareBtn');
       const msg = document.getElementById('shareMsg');
-      if (!btn || !msg) return;
+      const setMsg = (t) => { if (msg) msg.textContent = t; };
+      if (!btn) return;
 
-      // ★PCで出たり消えたりするのを根絶：最初は非表示、モバイル判定できた時だけ出す
+      // ★PCは絶対出さない。iPadOS（Macintosh表記 + touch）もモバイルとして扱う。
       const ua = navigator.userAgent || '';
-      const isMobileOS = /Android|iPhone|iPad|iPod/i.test(ua);
-      const isProbablyDesktop = /Windows NT|Macintosh|X11|CrOS/i.test(ua);
-      const coarse = (() => { try { return matchMedia('(pointer:coarse)').matches; } catch(e){ return false; } })();
+      const uadMobile = !!(navigator.userAgentData && navigator.userAgentData.mobile);
+
+      const isIPadOS = /Macintosh/i.test(ua) && (navigator.maxTouchPoints || 0) > 1;
+      const isIOS = /iPhone|iPad|iPod/i.test(ua) || isIPadOS;
+      const isAndroid = /Android/i.test(ua);
+      const isMobile = isIOS || isAndroid || uadMobile;
+
+      const isDesktopOS =
+        /Windows NT|X11|CrOS/i.test(ua) ||
+        (/Macintosh/i.test(ua) && !isIPadOS);
+
+      const shouldShow = isMobile && !isDesktopOS && !!navigator.share;
+
+      if (!shouldShow) {
+        btn.style.display = 'none';
+        // 共有が無い/PC のときはガイドだけ（msgが無ければ何もしない）
+        setMsg('画像を長押しして保存してください。');
+        return;
+      }
+
+      btn.style.display = 'block';
+
+      // ★「押したのに無反応」を潰す：押下検知を即表示して shareAll を呼ぶ
+      let locked = false;
+      const fire = (e) => {
+        try { e && e.preventDefault && e.preventDefault(); } catch(_){}
+        if (locked) return;
+        locked = true;
+        btn.textContent = '起動中…';
+        setTimeout(() => { locked = false; btn.textContent = 'まとめて保存（共有）'; }, 1200);
+        shareAll().catch(()=>{});
+      };
+
+      btn.addEventListener('click', fire, { passive:false });
+      btn.addEventListener('pointerup', fire, { passive:false });
+      btn.addEventListener('touchend', fire, { passive:false });
+    })();;
       const small = (() => { try { return Math.min(innerWidth, innerHeight) < 900; } catch(e){ return false; } })();
 
       const canUseShare = !!navigator.share;
@@ -967,7 +1002,7 @@ function updateExportButtonState() {
 
       if (!shouldShow) {
         btn.style.display = 'none';
-        msg.textContent = '画像を長押しして保存してください。';
+        setMsg('画像を長押しして保存してください。');
         return;
       }
 
@@ -981,7 +1016,7 @@ function updateExportButtonState() {
         locked = true;
         // すぐ見える反応を出す（share() が死んでも「押した」は分かる）
         btn.textContent = '起動中…';
-        msg.textContent = '共有を起動しています…';
+        setMsg('共有を起動しています…');
         Promise.resolve()
           .then(() => shareAll())
           .finally(() => { locked = false; });
@@ -1056,6 +1091,46 @@ function updateExportButtonState() {
     wrapper.style.height = HEIGHT + 'px';
     wrapper.style.position = 'relative';
     wrapper.style.background = resolveBackground(bg, colorName);
+
+    // ★解放区は星が「確実に見える」ように別レイヤーで重ねる（CSSグラデの点は端末差で消えがち）
+    if (colorName === '解放区') {
+      try {
+        const star = document.createElement('div');
+        star.style.position = 'absolute';
+        star.style.inset = '0';
+        star.style.pointerEvents = 'none';
+        star.style.zIndex = '0';
+        // SVGの星（点）をデータURLで生成：大小混ぜて密度高め
+        const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="1200" viewBox="0 0 600 1200">
+          <rect width="600" height="1200" fill="transparent"/>
+          ${(() => {
+            // deterministic-ish: fixed seed
+            let out = '';
+            let seed = 12345;
+            const rnd = () => (seed = (seed * 1103515245 + 12345) >>> 0) / 0xFFFFFFFF;
+            for (let i=0;i<260;i++){
+              const x = Math.floor(rnd()*600);
+              const y = Math.floor(rnd()*1200);
+              const r = rnd() < 0.18 ? 1.8 : (rnd() < 0.55 ? 1.2 : 0.9);
+              const a = rnd() < 0.25 ? 0.9 : 0.65;
+              out += `<circle cx="${x}" cy="${y}" r="${r}" fill="rgba(255,255,255,${a})"/>`;
+            }
+            // ちょい大きめの星
+            for (let i=0;i<26;i++){
+              const x = Math.floor(rnd()*600);
+              const y = Math.floor(rnd()*1200);
+              out += `<circle cx="${x}" cy="${y}" r="2.4" fill="rgba(255,255,255,0.9)"/>`;
+            }
+            return out;
+          })()}
+        </svg>`;
+        const url = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+        star.style.backgroundImage = `url("${url}")`;
+        star.style.backgroundRepeat = 'repeat';
+        star.style.opacity = '0.55';
+        wrapper.prepend(star);
+      } catch(_) {}
+    }
     wrapper.style.fontFamily = 'Helvetica, Arial, sans-serif';
 
 
@@ -1110,13 +1185,24 @@ function resolveBackground(bgValue, name) {
 
     function applyOuterTextStyle(el, dark) {
       if (!el) return;
+      // 背景にカードは敷かない。文字色と縁取り（shadow/stroke）だけで可読性を上げる。
+      el.style.opacity = '1';
+      el.style.fontWeight = el.style.fontWeight || '600';
+
       if (dark) {
-        el.style.color = '#fff';
-        el.style.opacity = '1';
+        // 暗背景：白文字 + 黒縁（太め）
+        el.style.color = '#ffffff';
         el.style.textShadow =
-          '0 0 2px rgba(0,0,0,0.95), 0 0 8px rgba(0,0,0,0.88), 0 0 14px rgba(0,0,0,0.70), 0 2px 16px rgba(0,0,0,0.55)';
-        el.style.webkitTextStroke = '1.2px rgba(0,0,0,0.75)';
+          '0 0 2px rgba(0,0,0,0.98), 0 0 6px rgba(0,0,0,0.92), 0 0 14px rgba(0,0,0,0.75), 0 2px 18px rgba(0,0,0,0.55)';
+        el.style.webkitTextStroke = '1.4px rgba(0,0,0,0.80)';
       } else {
+        // 明背景：黒文字 + 白縁（太め）
+        el.style.color = '#111111';
+        el.style.textShadow =
+          '0 0 2px rgba(255,255,255,0.99), 0 0 6px rgba(255,255,255,0.96), 0 0 14px rgba(255,255,255,0.86), 0 2px 14px rgba(0,0,0,0.18)';
+        el.style.webkitTextStroke = '1.2px rgba(255,255,255,0.90)';
+      }
+    } else {
         el.style.color = '#111';
         el.style.opacity = '1';
         // 白縁を太く（背景は敷かない）
@@ -1186,7 +1272,10 @@ function resolveBackground(bgValue, name) {
     badge.style.padding = '6px 10px';
     badge.style.borderRadius = '999px';
     badge.style.background = 'rgba(255,255,255,0.75)';
-    applyOuterTextStyle(badge, isDarkTheme);
+    badge.style.color = '#111';
+    badge.style.opacity = '1';
+    badge.style.textShadow = 'none';
+    badge.style.webkitTextStroke = '0px transparent';
     badge.style.marginTop = '0';
     badge.style.alignSelf = 'flex-start';
     topRow.style.alignItems = 'center';
