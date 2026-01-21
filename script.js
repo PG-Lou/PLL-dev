@@ -939,49 +939,38 @@ function updateExportButtonState() {
 
 // ===== 背景（テーマごとに上書き） =====
 function resolveBackground(bgValue, name) {
-// 追加カラー（ID指定）
+  // はみだし御免：炎ベース＋赤み追加
   if (bgValue === 'HMD_GOMEN') {
-    return "radial-gradient(circle at 22% 28%, rgba(255, 140, 60, 0.95) 0%, transparent 55%)," +
-           "radial-gradient(circle at 70% 24%, rgba(255, 190, 90, 0.85) 0%, transparent 60%)," +
-           "radial-gradient(circle at 45% 82%, rgba(255, 230, 140, 0.75) 0%, transparent 72%)," +
-           "#ff9b3f";
+    return "radial-gradient(circle at 25% 25%, rgba(255, 120, 60, 0.95) 0%, transparent 55%)," +
+           "radial-gradient(circle at 70% 30%, rgba(255, 80, 60, 0.85) 0%, transparent 60%)," +
+           "radial-gradient(circle at 45% 80%, rgba(255, 200, 120, 0.75) 0%, transparent 70%)," +
+           "#ff6a3a";
   }
+
+  // Zombies：右上オレンジ、左下暗め水色
   if (bgValue === 'ZOMBIES') {
-    return "radial-gradient(circle at 18% 25%, rgba(150, 230, 255, 0.90) 0%, transparent 55%)," +
-           "radial-gradient(circle at 70% 22%, rgba(200, 250, 255, 0.85) 0%, transparent 60%)," +
-           "radial-gradient(circle at 55% 78%, rgba(255, 185, 95, 0.85) 0%, transparent 70%)," +
-           "#c8f1ff";
+    return "radial-gradient(circle at 75% 20%, rgba(255, 160, 80, 0.9) 0%, transparent 55%)," +
+           "radial-gradient(circle at 25% 75%, rgba(120, 190, 220, 0.85) 0%, transparent 65%)," +
+           "#6fb3d2";
   }
+
+  // ラック：グレー要素強化
   if (bgValue === 'RACK') {
-    return "radial-gradient(circle at 20% 30%, rgba(190, 190, 190, 0.65) 0%, transparent 55%)," +
-           "radial-gradient(circle at 75% 25%, rgba(130, 130, 130, 0.55) 0%, transparent 60%)," +
-           "radial-gradient(circle at 50% 85%, rgba(70, 70, 70, 0.55) 0%, transparent 70%)," +
-           "#111111";
+    return "radial-gradient(circle at 30% 30%, rgba(200, 200, 200, 0.7) 0%, transparent 55%)," +
+           "radial-gradient(circle at 70% 40%, rgba(150, 150, 150, 0.6) 0%, transparent 60%)," +
+           "radial-gradient(circle at 50% 85%, rgba(90, 90, 90, 0.6) 0%, transparent 70%)," +
+           "#1a1a1a";
   }
 
-  const n = String(name || '');
-
-
-  // Rainbow：パステル虹 “もやもや” （白っぽすぎない・虹っぽさ優先）
-  if (/Rainbow/i.test(n)) {
-    return [
-      // 赤〜ピンク
-      'radial-gradient(circle at 18% 28%, rgba(255, 170, 190, 0.55) 0%, rgba(255, 170, 190, 0) 62%)',
-      // オレンジ
-      'radial-gradient(circle at 36% 22%, rgba(255, 205, 155, 0.52) 0%, rgba(255, 205, 155, 0) 64%)',
-      // 黄
-      'radial-gradient(circle at 54% 26%, rgba(255, 245, 170, 0.50) 0%, rgba(255, 245, 170, 0) 66%)',
-      // 緑
-      'radial-gradient(circle at 74% 30%, rgba(190, 255, 210, 0.48) 0%, rgba(190, 255, 210, 0) 66%)',
-      // 水色
-      'radial-gradient(circle at 82% 55%, rgba(175, 235, 255, 0.52) 0%, rgba(175, 235, 255, 0) 70%)',
-      // 青
-      'radial-gradient(circle at 62% 74%, rgba(175, 205, 255, 0.50) 0%, rgba(175, 205, 255, 0) 70%)',
-      // 紫
-      'radial-gradient(circle at 38% 82%, rgba(220, 185, 255, 0.52) 0%, rgba(220, 185, 255, 0) 72%)',
-      // ベース（ほんのり）
-      'linear-gradient(135deg, rgba(248,246,252,0.70) 0%, rgba(250,248,246,0.68) 45%, rgba(246,250,248,0.70) 100%)'
-    ].join(',');
+  // Rainbow：パステル虹
+  if (bgValue === 'RAINBOW') {
+    return "radial-gradient(circle at 15% 25%, rgba(255, 170, 190, 0.6) 0%, transparent 55%)," +
+           "radial-gradient(circle at 35% 20%, rgba(255, 220, 150, 0.55) 0%, transparent 58%)," +
+           "radial-gradient(circle at 55% 22%, rgba(255, 245, 170, 0.55) 0%, transparent 60%)," +
+           "radial-gradient(circle at 70% 30%, rgba(190, 245, 200, 0.55) 0%, transparent 62%)," +
+           "radial-gradient(circle at 78% 55%, rgba(170, 220, 255, 0.55) 0%, transparent 65%)," +
+           "radial-gradient(circle at 62% 80%, rgba(200, 190, 255, 0.55) 0%, transparent 70%)," +
+           "#f6f2ff";
   }
 
   return bgValue;
