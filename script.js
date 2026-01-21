@@ -821,7 +821,7 @@ function updateExportButtonState() {
   <div class="wrap">
     <p class="hint">画像を長押し/右クリックで保存できます（端末/ブラウザによって表記が違います）。</p>
     <div class="actions">
-      <button id="shareBtn" class="btn btnPrimary" type="button">まとめて保存（共有）</button>
+      <button id="shareBtn" class="btn btnPrimary" type="button">まとめて保存</button>
     </div>
     <div id="shareMsg" class="msg" style="display:none"></div>
     ${safeUrls.map((u, i) => `
@@ -911,7 +911,7 @@ function updateExportButtonState() {
         const { btn } = getEls();
         if (btn) {
           btn.disabled = false;
-          btn.textContent = prevText || 'まとめて保存（共有）';
+          btn.textContent = prevText || 'まとめて保存';
         }
       }
     }
