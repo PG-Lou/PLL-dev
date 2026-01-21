@@ -748,65 +748,56 @@ function updateExportButtonState() {
         label: '解放区',
         // 夜空（濃紺 + 星 + うっすら星雲）
         value: [
-          'radial-gradient(circle at 6% 12%, rgba(255,255,255,0.95) 0px, rgba(255,255,255,0.95) 1.6px, rgba(255,255,255,0) 3.4000000000000004px)',
-          'radial-gradient(circle at 12% 28%, rgba(255,255,255,0.8) 0px, rgba(255,255,255,0.8) 1.2px, rgba(255,255,255,0) 3.0px)',
-          'radial-gradient(circle at 18% 18%, rgba(255,255,255,0.85) 0px, rgba(255,255,255,0.85) 1.4px, rgba(255,255,255,0) 3.2px)',
-          'radial-gradient(circle at 24% 40%, rgba(255,255,255,0.75) 0px, rgba(255,255,255,0.75) 1.2px, rgba(255,255,255,0) 3.0px)',
-          'radial-gradient(circle at 30% 10%, rgba(255,255,255,0.9) 0px, rgba(255,255,255,0.9) 1.6px, rgba(255,255,255,0) 3.4000000000000004px)',
-          'radial-gradient(circle at 36% 26%, rgba(255,255,255,0.8) 0px, rgba(255,255,255,0.8) 1.2px, rgba(255,255,255,0) 3.0px)',
-          'radial-gradient(circle at 42% 14%, rgba(255,255,255,0.85) 0px, rgba(255,255,255,0.85) 1.3px, rgba(255,255,255,0) 3.1px)',
-          'radial-gradient(circle at 48% 34%, rgba(255,255,255,0.8) 0px, rgba(255,255,255,0.8) 1.4px, rgba(255,255,255,0) 3.2px)',
-          'radial-gradient(circle at 54% 22%, rgba(255,255,255,0.75) 0px, rgba(255,255,255,0.75) 1.2px, rgba(255,255,255,0) 3.0px)',
-          'radial-gradient(circle at 60% 12%, rgba(255,255,255,0.9) 0px, rgba(255,255,255,0.9) 1.6px, rgba(255,255,255,0) 3.4000000000000004px)',
-          'radial-gradient(circle at 66% 28%, rgba(255,255,255,0.8) 0px, rgba(255,255,255,0.8) 1.2px, rgba(255,255,255,0) 3.0px)',
-          'radial-gradient(circle at 72% 16%, rgba(255,255,255,0.85) 0px, rgba(255,255,255,0.85) 1.4px, rgba(255,255,255,0) 3.2px)',
-          'radial-gradient(circle at 78% 38%, rgba(255,255,255,0.75) 0px, rgba(255,255,255,0.75) 1.2px, rgba(255,255,255,0) 3.0px)',
-          'radial-gradient(circle at 84% 18%, rgba(255,255,255,0.9) 0px, rgba(255,255,255,0.9) 1.6px, rgba(255,255,255,0) 3.4000000000000004px)',
-          'radial-gradient(circle at 10% 58%, rgba(255,255,255,0.75) 0px, rgba(255,255,255,0.75) 1.2px, rgba(255,255,255,0) 3.0px)',
-          'radial-gradient(circle at 18% 70%, rgba(255,255,255,0.8) 0px, rgba(255,255,255,0.8) 1.4px, rgba(255,255,255,0) 3.2px)',
-          'radial-gradient(circle at 26% 86%, rgba(255,255,255,0.75) 0px, rgba(255,255,255,0.75) 1.2px, rgba(255,255,255,0) 3.0px)',
-          'radial-gradient(circle at 34% 62%, rgba(255,255,255,0.9) 0px, rgba(255,255,255,0.9) 1.6px, rgba(255,255,255,0) 3.4000000000000004px)',
-          'radial-gradient(circle at 42% 78%, rgba(255,255,255,0.75) 0px, rgba(255,255,255,0.75) 1.2px, rgba(255,255,255,0) 3.0px)',
-          'radial-gradient(circle at 50% 58%, rgba(255,255,255,0.8) 0px, rgba(255,255,255,0.8) 1.3px, rgba(255,255,255,0) 3.1px)',
-          'radial-gradient(circle at 58% 74%, rgba(255,255,255,0.85) 0px, rgba(255,255,255,0.85) 1.4px, rgba(255,255,255,0) 3.2px)',
-          'radial-gradient(circle at 66% 90%, rgba(255,255,255,0.75) 0px, rgba(255,255,255,0.75) 1.2px, rgba(255,255,255,0) 3.0px)',
-          'radial-gradient(circle at 74% 64%, rgba(255,255,255,0.92) 0px, rgba(255,255,255,0.92) 1.6px, rgba(255,255,255,0) 3.4000000000000004px)',
-          'radial-gradient(circle at 82% 76%, rgba(255,255,255,0.75) 0px, rgba(255,255,255,0.75) 1.2px, rgba(255,255,255,0) 3.0px)',
-          'radial-gradient(circle at 90% 60%, rgba(255,255,255,0.8) 0px, rgba(255,255,255,0.8) 1.4px, rgba(255,255,255,0) 3.2px)',
-          // 星雲もや
-          'radial-gradient(circle at 30% 70%, rgba(120,160,255,0.18) 0%, rgba(120,160,255,0) 70%)',
-          'radial-gradient(circle at 70% 30%, rgba(200,140,255,0.14) 0%, rgba(200,140,255,0) 70%)',
-          'linear-gradient(135deg, #050a1a 0%, #07122b 40%, #020612 100%)'
+          // 星（stopをちゃんと指定して「見える点」にする）
+          'radial-gradient(circle at 10% 16%, rgba(255,255,255,0.95) 0px, rgba(255,255,255,0.95) 1px, rgba(255,255,255,0) 2.2px)',
+          'radial-gradient(circle at 22% 30%, rgba(255,255,255,0.80) 0px, rgba(255,255,255,0.80) 1px, rgba(255,255,255,0) 2.2px)',
+          'radial-gradient(circle at 34% 18%, rgba(255,255,255,0.70) 0px, rgba(255,255,255,0.70) 1px, rgba(255,255,255,0) 2.2px)',
+          'radial-gradient(circle at 46% 26%, rgba(255,255,255,0.88) 0px, rgba(255,255,255,0.88) 1px, rgba(255,255,255,0) 2.2px)',
+          'radial-gradient(circle at 60% 14%, rgba(255,255,255,0.78) 0px, rgba(255,255,255,0.78) 1px, rgba(255,255,255,0) 2.2px)',
+          'radial-gradient(circle at 72% 30%, rgba(255,255,255,0.86) 0px, rgba(255,255,255,0.86) 1px, rgba(255,255,255,0) 2.2px)',
+          'radial-gradient(circle at 84% 18%, rgba(255,255,255,0.72) 0px, rgba(255,255,255,0.72) 1px, rgba(255,255,255,0) 2.2px)',
+          'radial-gradient(circle at 90% 34%, rgba(255,255,255,0.85) 0px, rgba(255,255,255,0.85) 1px, rgba(255,255,255,0) 2.2px)',
+          'radial-gradient(circle at 14% 64%, rgba(255,255,255,0.80) 0px, rgba(255,255,255,0.80) 1px, rgba(255,255,255,0) 2.2px)',
+          'radial-gradient(circle at 30% 78%, rgba(255,255,255,0.68) 0px, rgba(255,255,255,0.68) 1px, rgba(255,255,255,0) 2.2px)',
+          'radial-gradient(circle at 44% 70%, rgba(255,255,255,0.90) 0px, rgba(255,255,255,0.90) 1px, rgba(255,255,255,0) 2.2px)',
+          'radial-gradient(circle at 58% 86%, rgba(255,255,255,0.74) 0px, rgba(255,255,255,0.74) 1px, rgba(255,255,255,0) 2.2px)',
+          'radial-gradient(circle at 74% 76%, rgba(255,255,255,0.84) 0px, rgba(255,255,255,0.84) 1px, rgba(255,255,255,0) 2.2px)',
+          'radial-gradient(circle at 88% 70%, rgba(255,255,255,0.70) 0px, rgba(255,255,255,0.70) 1px, rgba(255,255,255,0) 2.2px)',
+
+          // 星雲っぽい“もや”
+          'radial-gradient(circle at 28% 44%, rgba(120,170,255,0.14) 0%, rgba(120,170,255,0) 60%)',
+          'radial-gradient(circle at 70% 58%, rgba(180,120,255,0.10) 0%, rgba(180,120,255,0) 62%)',
+          'radial-gradient(circle at 50% 78%, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0) 66%)',
+
+          // ベース
+          'linear-gradient(135deg, #020616 0%, #06133a 40%, #070d26 100%)'
         ].join(','),
       },
       {
         label: 'Rainbow',
         // パステル虹（もっと明るめ / もやもや系）
         value: [
-          'radial-gradient(circle at 18% 18%, rgba(255,195,210,0.78) 0%, rgba(255,195,210,0) 62%)',
-          'radial-gradient(circle at 42% 16%, rgba(255,225,190,0.76) 0%, rgba(255,225,190,0) 62%)',
-          'radial-gradient(circle at 64% 18%, rgba(255,250,200,0.74) 0%, rgba(255,250,200,0) 62%)',
-          'radial-gradient(circle at 30% 52%, rgba(205,245,220,0.74) 0%, rgba(205,245,220,0) 65%)',
-          'radial-gradient(circle at 62% 54%, rgba(195,235,255,0.74) 0%, rgba(195,235,255,0) 65%)',
-          'radial-gradient(circle at 52% 78%, rgba(220,210,255,0.74) 0%, rgba(220,210,255,0) 65%)',
-          'radial-gradient(circle at 28% 82%, rgba(255,220,245,0.72) 0%, rgba(255,220,245,0) 65%)',
-          'linear-gradient(135deg, #fff9fb 0%, #fbfdff 45%, #fffef6 100%)'
+          'radial-gradient(circle at 18% 30%, rgba(255,205,225,0.70) 0%, rgba(255,205,225,0) 66%)',
+          'radial-gradient(circle at 36% 24%, rgba(255,235,195,0.68) 0%, rgba(255,235,195,0) 66%)',
+          'radial-gradient(circle at 54% 28%, rgba(255,250,205,0.64) 0%, rgba(255,250,205,0) 68%)',
+          'radial-gradient(circle at 72% 30%, rgba(205,255,225,0.66) 0%, rgba(205,255,225,0) 68%)',
+          'radial-gradient(circle at 80% 56%, rgba(205,240,255,0.70) 0%, rgba(205,240,255,0) 70%)',
+          'radial-gradient(circle at 56% 78%, rgba(230,205,255,0.66) 0%, rgba(230,205,255,0) 70%)',
+          'radial-gradient(circle at 30% 80%, rgba(255,220,250,0.62) 0%, rgba(255,220,250,0) 70%)',
+          'linear-gradient(135deg, #fffafc 0%, #fbfeff 45%, #fffef8 100%)'
         ].join(','),
       },
     ];
 
+    const existing = new Set(Array.from(sel.options).map(o => o.textContent || o.label || ''));
     defs.forEach(d => {
-      const opt = Array.from(sel.options).find(o => (o.textContent || o.label || '') === d.label);
-      if (opt) {
-        // 既存があれば上書き（色味の調整を確実に反映させる）
-        opt.value = d.value;
-      } else {
-        const o = document.createElement('option');
-        o.textContent = d.label;
-        o.value = d.value;
-        sel.appendChild(o);
-      }
+      if (existing.has(d.label)) return; // 既にあるなら触らない
+      const opt = document.createElement('option');
+      opt.textContent = d.label;
+      opt.value = d.value;
+      sel.appendChild(opt);
     });
+  })();
 
   // ======================
   // 画像出力（分割対応）
@@ -819,18 +810,6 @@ function updateExportButtonState() {
   function openPreviewTab(imageUrls, fileNames, title, w, shareFiles) {
     const win = w || window.open('', '_blank');
     try { win && win.focus && win.focus(); } catch (_) {}
-    // 共有用ファイル（Blob→File）をプレビュー側へ渡す（同一オリジンの別ウィンドウで参照できる）
-    if (win && Array.isArray(shareFiles) && shareFiles.length) {
-      try {
-        win.__PGLL_EXPORT_FILES = shareFiles.map((blob, i) => {
-          const name = (Array.isArray(fileNames) && fileNames[i]) ? fileNames[i] : `pg-live-log_${i+1}.png`;
-          return new File([blob], name, { type: blob && blob.type ? blob.type : 'image/png' });
-        });
-      } catch (e) {
-        // 失敗してもURLフェッチ方式にフォールバックする
-        try { win.__PGLL_EXPORT_FILES = null; } catch (_) {}
-      }
-    }
     if (!win) {
       alert('ポップアップがブロックされました。ブラウザ設定で許可してください。');
       return;
@@ -891,12 +870,7 @@ function updateExportButtonState() {
     // 実際の可否はクリック時に判定＆失敗時に案内する。
     function canShowShareButton() {
       try {
-        const ua = navigator.userAgent || '';
-        const mobileUA = /Android|iPhone|iPad|iPod/i.test(ua);
-        const coarse = !!(window.matchMedia && matchMedia('(pointer:coarse)').matches);
-        const noHover = !!(window.matchMedia && matchMedia('(hover:none)').matches);
-        const mobileLike = mobileUA || (coarse && noHover);
-        return mobileLike && !!navigator.share && typeof File === 'function' && typeof Blob === 'function';
+        return !!navigator.share && typeof File === 'function' && typeof Blob === 'function';
       } catch (e) {
         return false;
       }
@@ -907,80 +881,71 @@ function updateExportButtonState() {
       const msg = document.getElementById('shareMsg');
       if (!btn || !msg) return;
 
+      // 共有機能そのものが無い端末
       if (!navigator.share) {
         alert('この端末では「まとめて保存」に対応していません。\n下の画像を1枚ずつ保存してください。');
+        msg.textContent = 'この端末では「まとめて保存」が使えません。下の画像を長押しして保存してください。';
         return;
       }
 
-      // まず“押した感”を出す（無反応を防ぐ）
-      const prevText = btn.textContent;
       btn.disabled = true;
-      btn.textContent = '共有を開いています…';
-      msg.textContent = '共有メニューを開いています。出ない場合は下の画像を長押しして保存してください。';
+      btn.textContent = '準備中…';
+      msg.textContent = '共有の準備中…（端末によっては少し時間がかかります）';
 
-      // 画像のFileはできるだけ“事前に用意したもの”を使う（ユーザー操作扱いが切れにくい）
-      let files = Array.isArray(window.__PGLL_EXPORT_FILES) ? window.__PGLL_EXPORT_FILES.filter(Boolean) : [];
+      try {
+        // できるだけ user gesture を保つため、先に opener から渡された File を使う
+        const pre = (window.__PGLL_SHARE_FILES && Array.isArray(window.__PGLL_SHARE_FILES)) ? window.__PGLL_SHARE_FILES : null;
 
-      // 念のためフォールバック（URL→Blob→File）
-      if (!files.length) {
-        const fetchWithTimeout = async (url, ms) => {
-          const controller = new AbortController();
-          const t = setTimeout(() => controller.abort(), ms);
-          try {
-            const res = await fetch(url, { signal: controller.signal, cache: 'no-store' });
-            if (!res.ok) throw new Error('fetch failed');
-            return await res.blob();
-          } finally {
-            clearTimeout(t);
+        // 画像のURLから Blob を取り出して File 化
+        const files = (pre && pre.length) ? pre : [];
+        if (!files.length) {
+          for (let i = 0; i < urls.length; i++) {
+            const u = urls[i];
+            let blob;
+            try {
+              const res = await fetch(u);
+              blob = await res.blob();
+            } catch (e) {
+              // fetch(blob:) が失敗する環境向け：img要素から取り直す
+              const img = document.querySelectorAll('img')[i];
+              if (!img) throw e;
+              const res2 = await fetch(img.currentSrc || img.src);
+              blob = await res2.blob();
+            }
+            const name = names[i] || ('pg-live-log_' + String(i + 1).padStart(2, '0') + '.png');
+            files.push(new File([blob], name, { type: blob.type || 'image/png' }));
           }
-        };
-
-        try {
-          files = await Promise.all(urls.map(async (u, i) => {
-            const blob = await fetchWithTimeout(u, 6000);
-            const name = names[i] || `pg-live-log_${i + 1}.png`;
-            return new File([blob], name, { type: blob.type || 'image/png' });
-          }));
-        } catch (e) {
-          alert('この端末では「まとめて保存」に対応していません。\n下の画像を1枚ずつ保存してください。');
-          btn.disabled = false;
-          btn.textContent = prevText;
-          return;
         }
-      }
 
-      // canShare が使える環境ではここで確実に弾く（無反応端末の保険）
-      try {
-        if (navigator.canShare && !navigator.canShare({ files })) {
-          throw new Error('canShare=false');
-        }
+// Edge(PC)などで「黙って何も起きない」ケース対策：一定時間でタイムアウトしてフォールバック
+        const SHARE_TIMEOUT_MS = 1500;
+        let _shareTimer;
+
+        const sharePromise = navigator.share({
+          files,
+          title: 'PG LIVE LOG',
+          text: '参戦履歴画像'
+        });
+        const timeoutPromise = new Promise((_, reject) => {
+          _shareTimer = setTimeout(() => reject(new Error('share-timeout')), SHARE_TIMEOUT_MS);
+        });
+
+        await Promise.race([sharePromise, timeoutPromise]).finally(() => {
+          if (_shareTimer) clearTimeout(_shareTimer);
+        });
+
+        msg.textContent = '共有メニューを開きました。写真アプリ等に保存してください。';
       } catch (e) {
-        alert('この端末/ブラウザでは「まとめて保存」に対応していません。\n下の画像を1枚ずつ保存してください。');
-        btn.disabled = false;
-        btn.textContent = prevText;
-        return;
-      }
-
-      // “無反応”対策：一定時間たっても何も起きなければ案内文を強める
-      let settled = false;
-      const nudge = setTimeout(() => {
-        if (!settled) {
-          msg.textContent = '共有が開かない場合は、この端末では未対応の可能性があります。下の画像を長押しして保存してください。';
+        const name = (e && e.name) ? e.name : '';
+        if (name === 'AbortError') {
+          msg.textContent = '共有をキャンセルしました。下の画像を長押しして保存もできます。';
+        } else {
+          msg.textContent = 'この端末では「まとめて保存」が使えない可能性があります。下の画像を1枚ずつ保存してください。';
+          alert('「まとめて保存」でエラーが発生しました。\nこの端末では対応していない可能性があります。\n下の画像を1枚ずつ保存してください。');
         }
-      }, 1200);
-
-      try {
-        await navigator.share({ files, title: 'PG LIVE LOG' });
-        settled = true;
-        msg.textContent = '共有メニューを開きました。';
-      } catch (e) {
-        settled = true;
-        // ユーザーキャンセルは静かに戻す
-        msg.textContent = '共有をキャンセルしました。必要なら下の画像を長押しして保存してください。';
       } finally {
-        clearTimeout(nudge);
         btn.disabled = false;
-        btn.textContent = prevText;
+        btn.textContent = 'まとめて保存（共有）';
       }
     }
 
@@ -989,26 +954,14 @@ function updateExportButtonState() {
       const btn = document.getElementById('shareBtn');
       const msg = document.getElementById('shareMsg');
       if (!btn || !msg) return;
-
-      // PCなど（モバイルっぽくない環境）はボタン自体を出さない
+      btn.addEventListener('click', shareAll);
+      btn.addEventListener('touchend', (e) => { e.preventDefault(); shareAll(); }, { passive: false });
+      btn.addEventListener('pointerup', (e) => { if (e && e.pointerType === 'touch') { e.preventDefault(); shareAll(); } }, { passive: false });
+      btn.onclick = shareAll;
+      // 非対応端末っぽい場合は補足だけ少し出す（フォントは下のヒントと同じ）
       if (!canShowShareButton()) {
-        btn.style.display = 'none';
-        msg.textContent = '画像を長押しして保存してください（端末によって表記が違います）。';
-        return;
+        msg.textContent = 'この端末/ブラウザでは「まとめて保存」が使えない場合があります。下の画像を長押しして保存してください。';
       }
-
-      // iOS/Safariでclickが不安定なケース対策でtouchendも拾う（ただしpreventDefaultしない）
-      let fired = false;
-      const fire = () => {
-        if (fired) return;
-        fired = true;
-        // 連打防止（すぐ戻す）
-        setTimeout(() => { fired = false; }, 800);
-        shareAll();
-      };
-
-      btn.addEventListener('click', fire, { passive: true });
-      btn.addEventListener('touchend', fire, { passive: true });
     })();
 
     window.addEventListener('beforeunload', () => {
@@ -1086,23 +1039,19 @@ function updateExportButtonState() {
 
     function applyOuterTextStyle(el, dark) {
       if (!el) return;
-
-      // 背景を敷かずに「縁取り」を強めて可読性を上げる
-      // ※ opacity を落とすと“うっすい”と言われがちなので 1 固定
-      el.style.opacity = '1';
-
       if (dark) {
-        // 暗背景：白文字 + 黒縁
         el.style.color = '#fff';
-        el.style.webkitTextStroke = '1.0px rgba(0,0,0,0.70)';
+        el.style.opacity = '0.92';
         el.style.textShadow =
-          '0 0 2px rgba(0,0,0,0.95), 0 0 6px rgba(0,0,0,0.85), 0 2px 10px rgba(0,0,0,0.60), 0 0 16px rgba(0,0,0,0.35)';
+          '0 0 2px rgba(0,0,0,0.90), 0 0 6px rgba(0,0,0,0.82), 0 2px 10px rgba(0,0,0,0.55), 0 0 14px rgba(0,0,0,0.30)';
+        el.style.webkitTextStroke = '0.7px rgba(0,0,0,0.60)';
       } else {
-        // 明背景：黒文字 + 白縁
         el.style.color = '#111';
-        el.style.webkitTextStroke = '1.0px rgba(255,255,255,0.92)';
+        el.style.opacity = '0.90';
+        // 白縁を太く（背景は敷かない）
         el.style.textShadow =
-          '0 0 2px rgba(255,255,255,0.98), 0 0 7px rgba(255,255,255,0.92), 0 0 14px rgba(255,255,255,0.80), 0 2px 10px rgba(0,0,0,0.18)';
+          '0 0 2px rgba(255,255,255,0.98), 0 0 6px rgba(255,255,255,0.97), 0 0 12px rgba(255,255,255,0.93), 0 2px 10px rgba(255,255,255,0.86), 0 2px 10px rgba(0,0,0,0.18)';
+        el.style.webkitTextStroke = '0.7px rgba(255,255,255,0.75)';
       }
     }
 
@@ -1165,11 +1114,8 @@ function updateExportButtonState() {
     badge.style.lineHeight = '1';
     badge.style.padding = '6px 10px';
     badge.style.borderRadius = '999px';
-    badge.style.background = 'rgba(255,255,255,0.88)';
-    applyOuterTextStyle(badge, false);
-    badge.style.color = '#111';
-    badge.style.webkitTextStroke = '0px transparent';
-    badge.style.textShadow = 'none';
+    badge.style.background = 'rgba(255,255,255,0.75)';
+    applyOuterTextStyle(badge, isDarkTheme);
     badge.style.marginTop = '0';
     badge.style.alignSelf = 'flex-start';
     topRow.style.alignItems = 'center';
