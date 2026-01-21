@@ -848,7 +848,7 @@ function updateExportButtonState() {
 <body>
   <div class="wrap">
     <div class="actions">
-      <button id="shareBtn" class="btn btnPrimary" type="button">まとめて保存（共有）</button>
+      <button id="shareBtn" class="btn btnPrimary" type="button" style="display:none">まとめて保存（共有）</button>
     </div>
     <p id="shareMsg" class="msg">「まとめて保存」を押すと、端末の共有メニューが開きます（写真に追加など）。</p>
     <p class="hint">画像を長押し/右クリックで保存できます（端末/ブラウザによって表記が違います）。</p>
@@ -954,14 +954,42 @@ function updateExportButtonState() {
       const btn = document.getElementById('shareBtn');
       const msg = document.getElementById('shareMsg');
       if (!btn || !msg) return;
-      btn.addEventListener('click', shareAll);
-      btn.addEventListener('touchend', (e) => { e.preventDefault(); shareAll(); }, { passive: false });
-      btn.addEventListener('pointerup', (e) => { if (e && e.pointerType === 'touch') { e.preventDefault(); shareAll(); } }, { passive: false });
-      btn.onclick = shareAll;
-      // 非対応端末っぽい場合は補足だけ少し出す（フォントは下のヒントと同じ）
-      if (!canShowShareButton()) {
-        msg.textContent = 'この端末/ブラウザでは「まとめて保存」が使えない場合があります。下の画像を長押しして保存してください。';
+
+      // ★PCで出たり消えたりするのを根絶：最初は非表示、モバイル判定できた時だけ出す
+      const ua = navigator.userAgent || '';
+      const isMobileOS = /Android|iPhone|iPad|iPod/i.test(ua);
+      const isProbablyDesktop = /Windows NT|Macintosh|X11|CrOS/i.test(ua);
+      const coarse = (() => { try { return matchMedia('(pointer:coarse)').matches; } catch(e){ return false; } })();
+      const small = (() => { try { return Math.min(innerWidth, innerHeight) < 900; } catch(e){ return false; } })();
+
+      const canUseShare = !!navigator.share;
+      const shouldShow = isMobileOS && !isProbablyDesktop && (coarse || small) && canUseShare;
+
+      if (!shouldShow) {
+        btn.style.display = 'none';
+        msg.textContent = '画像を長押しして保存してください。';
+        return;
       }
+
+      btn.style.display = 'block';
+
+      // ★「押したのに無反応」を潰す：押下検知を即表示
+      let locked = false;
+      const fire = (e) => {
+        try { e && e.preventDefault && e.preventDefault(); } catch(_){}
+        if (locked) return;
+        locked = true;
+        // すぐ見える反応を出す（share() が死んでも「押した」は分かる）
+        btn.textContent = '起動中…';
+        msg.textContent = '共有を起動しています…';
+        Promise.resolve()
+          .then(() => shareAll())
+          .finally(() => { locked = false; });
+      };
+
+      btn.addEventListener('click', fire, { passive: false });
+      btn.addEventListener('touchend', fire, { passive: false });
+      btn.addEventListener('pointerup', fire, { passive: false });
     })();
 
     window.addEventListener('beforeunload', () => {
@@ -1027,9 +1055,52 @@ function updateExportButtonState() {
     wrapper.style.width = WIDTH + 'px';
     wrapper.style.height = HEIGHT + 'px';
     wrapper.style.position = 'relative';
-    wrapper.style.background = bg;
+    wrapper.style.background = resolveBackground(bg, colorName);
     wrapper.style.fontFamily = 'Helvetica, Arial, sans-serif';
 
+
+        wrapper.style.fontFamily = 'Helvetica, Arial, sans-serif';
+
+
+// ===== 背景（テーマごとに上書き） =====
+function resolveBackground(bgValue, name) {
+  const n = String(name || '');
+  // 解放区：夜空＋星（星を増量）
+  if (/解放区/.test(n)) {
+    return [
+      'radial-gradient(circle at 12% 18%, rgba(255,255,255,0.95) 0 1.6px, transparent 1.8px)',
+      'radial-gradient(circle at 28% 32%, rgba(255,255,255,0.85) 0 1.2px, transparent 1.4px)',
+      'radial-gradient(circle at 44% 22%, rgba(255,255,255,0.75) 0 1.0px, transparent 1.2px)',
+      'radial-gradient(circle at 62% 28%, rgba(255,255,255,0.90) 0 1.6px, transparent 1.8px)',
+      'radial-gradient(circle at 78% 16%, rgba(255,255,255,0.70) 0 1.0px, transparent 1.2px)',
+      'radial-gradient(circle at 86% 38%, rgba(255,255,255,0.80) 0 1.3px, transparent 1.5px)',
+      'radial-gradient(circle at 18% 58%, rgba(255,255,255,0.72) 0 1.0px, transparent 1.2px)',
+      'radial-gradient(circle at 36% 70%, rgba(255,255,255,0.88) 0 1.5px, transparent 1.7px)',
+      'radial-gradient(circle at 54% 62%, rgba(255,255,255,0.76) 0 1.1px, transparent 1.3px)',
+      'radial-gradient(circle at 72% 72%, rgba(255,255,255,0.86) 0 1.4px, transparent 1.6px)',
+      'radial-gradient(circle at 90% 60%, rgba(255,255,255,0.72) 0 1.0px, transparent 1.2px)',
+      // 星雲もや
+      'radial-gradient(ellipse at 30% 40%, rgba(120,160,255,0.18) 0%, transparent 60%)',
+      'radial-gradient(ellipse at 70% 65%, rgba(160,110,255,0.14) 0%, transparent 62%)',
+      'linear-gradient(180deg, #070B1B 0%, #06112A 45%, #040A18 100%)'
+    ].join(',');
+  }
+
+  // Rainbow：明るいパステル “もやもや”
+  if (/Rainbow/i.test(n)) {
+    return [
+      'radial-gradient(circle at 15% 25%, rgba(255,170,200,0.55) 0%, transparent 55%)',
+      'radial-gradient(circle at 35% 45%, rgba(255,235,170,0.55) 0%, transparent 58%)',
+      'radial-gradient(circle at 55% 30%, rgba(190,255,210,0.55) 0%, transparent 56%)',
+      'radial-gradient(circle at 70% 55%, rgba(170,230,255,0.55) 0%, transparent 60%)',
+      'radial-gradient(circle at 85% 35%, rgba(210,185,255,0.55) 0%, transparent 58%)',
+      'linear-gradient(180deg, rgba(255,255,255,0.90) 0%, rgba(250,245,255,0.90) 70%, rgba(255,255,255,0.88) 100%)'
+    ].join(',');
+  }
+
+  // それ以外はそのまま
+  return bgValue;
+}
 
     // ===== 枠外テキスト（名前/X/右下表記）の見やすさ調整 =====
     const isDarkTheme = (() => {
@@ -1041,17 +1112,17 @@ function updateExportButtonState() {
       if (!el) return;
       if (dark) {
         el.style.color = '#fff';
-        el.style.opacity = '0.92';
+        el.style.opacity = '1';
         el.style.textShadow =
-          '0 0 2px rgba(0,0,0,0.90), 0 0 6px rgba(0,0,0,0.82), 0 2px 10px rgba(0,0,0,0.55), 0 0 14px rgba(0,0,0,0.30)';
-        el.style.webkitTextStroke = '0.7px rgba(0,0,0,0.60)';
+          '0 0 2px rgba(0,0,0,0.95), 0 0 8px rgba(0,0,0,0.88), 0 0 14px rgba(0,0,0,0.70), 0 2px 16px rgba(0,0,0,0.55)';
+        el.style.webkitTextStroke = '1.2px rgba(0,0,0,0.75)';
       } else {
         el.style.color = '#111';
-        el.style.opacity = '0.90';
+        el.style.opacity = '1';
         // 白縁を太く（背景は敷かない）
         el.style.textShadow =
           '0 0 2px rgba(255,255,255,0.98), 0 0 6px rgba(255,255,255,0.97), 0 0 12px rgba(255,255,255,0.93), 0 2px 10px rgba(255,255,255,0.86), 0 2px 10px rgba(0,0,0,0.18)';
-        el.style.webkitTextStroke = '0.7px rgba(255,255,255,0.75)';
+        el.style.webkitTextStroke = '1.2px rgba(255,255,255,0.92)';
       }
     }
 
