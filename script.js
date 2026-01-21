@@ -1032,14 +1032,6 @@ function updateExportButtonState() {
 function resolveBackground(bgValue, name) {
   const n = String(name || '');
 
-  // ：夜空っぽい濃紺（★星はやらない：端末差が大きくて消える/崩れるため）
-  if (//.test(n)) {
-    return [
-      'radial-gradient(ellipse at 30% 35%, rgba(90,130,255,0.16) 0%, transparent 58%)',
-      'radial-gradient(ellipse at 72% 62%, rgba(180,120,255,0.12) 0%, transparent 62%)',
-      'linear-gradient(180deg, #070B1B 0%, #06112A 45%, #040A18 100%)'
-    ].join(',');
-  }
 
   // Rainbow：パステル虹 “もやもや” （白っぽすぎない・虹っぽさ優先）
   if (/Rainbow/i.test(n)) {
