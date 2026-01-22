@@ -527,7 +527,7 @@ function applyRestoredData(data) {
               fill="none"
               stroke="currentColor"
               stroke-width="2.2"
-              stroke-linecap="round"
+              stroke-linecap="square"
               stroke-linejoin="round"/>
           </svg>
         </span>
@@ -785,7 +785,7 @@ function updateExportButtonState() {
     }
     .shareBtn:active { transform: scale(0.98); }
     .shareBtn[disabled] { opacity: 0.45; cursor: default; transform: none; }
-    .shareBtn svg { width: 20px; height: 20px; opacity: 0.78; }
+    .shareBtn svg { width: 20px; height: 20px; opacity: 0.78; display: block;}
     .msg { font-size: 13px; color: #c62828; font-weight: 650; margin: 8px 0 12px; }
     .imgbox { background: #fff; border-radius: 14px; padding: 10px; box-shadow: 0 6px 18px rgba(0,0,0,0.10); margin-bottom: 14px; }
     img { width: 100%; height: auto; display: block; border-radius: 10px; }
@@ -1867,6 +1867,7 @@ function resolveBackground(bgValue, name) {
   });
 
 });
+
 
 
 
