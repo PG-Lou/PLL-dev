@@ -521,7 +521,16 @@ function applyRestoredData(data) {
       header.setAttribute('aria-expanded', 'false');
 
       header.innerHTML = `
-        <span class="chev" aria-hidden="true">▾</span>
+        <span class="chev" aria-hidden="true">
+          <svg viewBox="0 0 20 20" class="chevIcon">
+            <path d="M7.5 4.5L13 10l-5.5 5.5"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.2"
+              stroke-linecap="round"
+              stroke-linejoin="round"/>
+          </svg>
+        </span>
         <input type="checkbox" class="pgCheck tour-check">
         <span class="liveTitle">${live.liveName}</span>
       `;
