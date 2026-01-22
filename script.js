@@ -796,9 +796,9 @@ function updateExportButtonState() {
     <p class="hint">画像を長押し/右クリックで保存できます（端末/ブラウザによって表記が違います）。</p>
     <button id="shareBtn" class="shareBtn" type="button" aria-label="共有" title="共有">
       <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M16 5l-4-4-4 4h3v7h2V5h3z" fill="currentColor"></path>
-        <path d="M19 9v11H5V9h4V7H5c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V9h-4v2h2z" fill="currentColor"></path>
-      </svg>
+  <path fill="currentColor"
+    d="M12 3l-5 5h3v6h4V8h3l-5-5zm-7 14v4h14v-4h2v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4h2z"/>
+</svg>
     </button>
     <div id="shareMsg" class="msg" style="display:none"></div>
     ${safeUrls.map((u, i) => `
