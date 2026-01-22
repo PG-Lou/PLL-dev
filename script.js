@@ -767,11 +767,11 @@ function updateExportButtonState() {
     .hint { font-size: 13px; color: rgba(0,0,0,0.65); margin: 0 0 12px; }
     .shareBtn {
       position: fixed;
-      top: 12px;
-      right: 12px;
-      width: 40px;
-      height: 40px;
-      border-radius: 999px;
+      top: 10px;
+      right: 10px;
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
       border: 1px solid rgba(0,0,0,0.14);
       background: rgba(255,255,255,0.78);
       backdrop-filter: blur(6px);
@@ -785,7 +785,7 @@ function updateExportButtonState() {
     }
     .shareBtn:active { transform: scale(0.98); }
     .shareBtn[disabled] { opacity: 0.45; cursor: default; transform: none; }
-    .shareBtn svg { width: 18px; height: 18px; opacity: 0.75; }
+    .shareBtn svg { width: 20px; height: 20px; opacity: 0.78; }
     .msg { font-size: 13px; color: #c62828; font-weight: 650; margin: 8px 0 12px; }
     .imgbox { background: #fff; border-radius: 14px; padding: 10px; box-shadow: 0 6px 18px rgba(0,0,0,0.10); margin-bottom: 14px; }
     img { width: 100%; height: auto; display: block; border-radius: 10px; }
@@ -796,7 +796,8 @@ function updateExportButtonState() {
     <p class="hint">画像を長押し/右クリックで保存できます（端末/ブラウザによって表記が違います）。</p>
     <button id="shareBtn" class="shareBtn" type="button" aria-label="共有" title="共有">
       <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M16 8a3 3 0 1 0-2.83-4H13a3 3 0 0 0 .17 1L8.91 8.2a3.05 3.05 0 0 0-1.91-.7 3 3 0 1 0 2.83 4H10a3 3 0 0 0-.17-1l4.26-2.2c.5.44 1.15.7 1.91.7Zm0-6a1 1 0 1 1 0 2 1 1 0 0 1 0-2ZM7 10a1 1 0 1 1 0 2 1 1 0 0 1 0-2Zm9 4a3 3 0 0 0-1.91.7l-4.26-2.2c.11-.32.17-.66.17-1h-.17A3 3 0 1 0 7 17a3.05 3.05 0 0 0 1.91-.7l4.26 2.2A3 3 0 1 0 16 14Zm-9 2a1 1 0 1 1 0 2 1 1 0 0 1 0-2Zm9 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2Z" fill="currentColor"/>
+        <path d="M16 5l-4-4-4 4h3v7h2V5h3z" fill="currentColor"></path>
+        <path d="M19 9v11H5V9h4V7H5c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V9h-4v2h2z" fill="currentColor"></path>
       </svg>
     </button>
     <div id="shareMsg" class="msg" style="display:none"></div>
