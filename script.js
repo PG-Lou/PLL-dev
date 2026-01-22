@@ -522,14 +522,7 @@ function applyRestoredData(data) {
 
       header.innerHTML = `
         <span class="chev" aria-hidden="true">
-          <svg viewBox="0 0 20 20" class="chevIcon">
-            <path d="M7.5 4.5L13 10l-5.5 5.5"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2.2"
-              stroke-linecap="square"
-              stroke-linejoin="round"/>
-          </svg>
+          <img src="images/share.png" alt="share" width="20" height="20" />
         </span>
         <input type="checkbox" class="pgCheck tour-check">
         <span class="liveTitle">${live.liveName}</span>
@@ -796,8 +789,8 @@ function updateExportButtonState() {
     <p class="hint">画像を長押し/右クリックで保存できます（端末/ブラウザによって表記が違います）。</p>
     <button id="shareBtn" class="shareBtn" type="button" aria-label="共有" title="共有">
       <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path fill="currentColor"
-          d="M5 5h14v14H5V5zm6.5 9.5V10H9l3-3 3 3h-2.5v4.5h-1z"/>
+        <path d="M16 5l-4-4-4 4h3v7h2V5h3z" fill="currentColor"></path>
+        <path d="M19 9v11H5V9h4V7H5c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V9h-4v2h2z" fill="currentColor"></path>
       </svg>
     </button>
     <div id="shareMsg" class="msg" style="display:none"></div>
@@ -1867,7 +1860,6 @@ function resolveBackground(bgValue, name) {
   });
 
 });
-
 
 
 
