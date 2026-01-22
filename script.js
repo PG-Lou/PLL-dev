@@ -521,9 +521,7 @@ function applyRestoredData(data) {
       header.setAttribute('aria-expanded', 'false');
 
       header.innerHTML = `
-        <span class="chev" aria-hidden="true">
-          <img src="images/share.png" alt="share" width="20" height="20" />
-        </span>
+        <span class="chev" aria-hidden="true">▾</span>
         <input type="checkbox" class="pgCheck tour-check">
         <span class="liveTitle">${live.liveName}</span>
       `;
@@ -779,6 +777,7 @@ function updateExportButtonState() {
     .shareBtn:active { transform: scale(0.98); }
     .shareBtn[disabled] { opacity: 0.45; cursor: default; transform: none; }
     .shareBtn svg { width: 20px; height: 20px; opacity: 0.78; display: block;}
+    .shareBtn img { width: 20px; height: 20px; opacity: 0.78; display: block; }
     .msg { font-size: 13px; color: #c62828; font-weight: 650; margin: 8px 0 12px; }
     .imgbox { background: #fff; border-radius: 14px; padding: 10px; box-shadow: 0 6px 18px rgba(0,0,0,0.10); margin-bottom: 14px; }
     img { width: 100%; height: auto; display: block; border-radius: 10px; }
@@ -788,10 +787,7 @@ function updateExportButtonState() {
   <div class="wrap">
     <p class="hint">画像を長押し/右クリックで保存できます（端末/ブラウザによって表記が違います）。</p>
     <button id="shareBtn" class="shareBtn" type="button" aria-label="共有" title="共有">
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M16 5l-4-4-4 4h3v7h2V5h3z" fill="currentColor"></path>
-        <path d="M19 9v11H5V9h4V7H5c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V9h-4v2h2z" fill="currentColor"></path>
-      </svg>
+      <img src="images/share.png?v=1769051702" alt="共有" width="20" height="20" style="display:block; opacity:0.78;">
     </button>
     <div id="shareMsg" class="msg" style="display:none"></div>
     ${safeUrls.map((u, i) => `
