@@ -398,12 +398,10 @@ function stripStateParamsFromUrl() {
   try {
     const url = new URL(location.href);
 
-    // URL元に戻す
+    // チェック状態だけ消す（名前とXは残す）
     url.searchParams.delete('b');
     url.searchParams.delete('r');
     url.searchParams.delete('d');
-    url.searchParams.delete('n');
-    url.searchParams.delete('x');
 
     // 履歴を増やさずURLだけ差し替え
     history.replaceState(null, '', url.toString());
@@ -765,13 +763,30 @@ function updateExportButtonState() {
   <title>${safeTitle}</title>
   <style>
     body { margin: 0; padding: 16px; font-family: -apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif; background: #f2f4f8; }
-    .wrap { max-width: 420px; margin: 0 auto; }
+    .wrap { max-width: 420px; margin: 0 auto; position: relative; }
     .hint { font-size: 13px; color: rgba(0,0,0,0.65); margin: 0 0 12px; }
-    .actions { display: flex; gap: 10px; margin: 0 0 12px; }
-    .btn { flex: 1 1 auto; padding: 12px 12px; border-radius: 12px; border: none; font-size: 14px; font-weight: 800; }
-    .btnPrimary { background: #111; color: #fff; }
-    .btnPrimary[disabled] { opacity: 0.55; }
-     .msg { font-size: 13px; color: rgba(0,0,0,0.55); margin: 0 0 12px; }
+    .shareBtn {
+      position: fixed;
+      top: 12px;
+      right: 12px;
+      width: 40px;
+      height: 40px;
+      border-radius: 999px;
+      border: 1px solid rgba(0,0,0,0.14);
+      background: rgba(255,255,255,0.78);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: rgba(0,0,0,0.85);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.10);
+    }
+    .shareBtn:active { transform: scale(0.98); }
+    .shareBtn[disabled] { opacity: 0.45; cursor: default; transform: none; }
+    .shareBtn svg { width: 18px; height: 18px; opacity: 0.75; }
+    .msg { font-size: 13px; color: #c62828; font-weight: 650; margin: 8px 0 12px; }
     .imgbox { background: #fff; border-radius: 14px; padding: 10px; box-shadow: 0 6px 18px rgba(0,0,0,0.10); margin-bottom: 14px; }
     img { width: 100%; height: auto; display: block; border-radius: 10px; }
   </style>
@@ -779,9 +794,11 @@ function updateExportButtonState() {
 <body>
   <div class="wrap">
     <p class="hint">画像を長押し/右クリックで保存できます（端末/ブラウザによって表記が違います）。</p>
-    <div class="actions">
-      <button id="shareBtn" class="btn btnPrimary" type="button">まとめて保存</button>
-    </div>
+    <button id="shareBtn" class="shareBtn" type="button" aria-label="共有" title="共有">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M16 8a3 3 0 1 0-2.83-4H13a3 3 0 0 0 .17 1L8.91 8.2a3.05 3.05 0 0 0-1.91-.7 3 3 0 1 0 2.83 4H10a3 3 0 0 0-.17-1l4.26-2.2c.5.44 1.15.7 1.91.7Zm0-6a1 1 0 1 1 0 2 1 1 0 0 1 0-2ZM7 10a1 1 0 1 1 0 2 1 1 0 0 1 0-2Zm9 4a3 3 0 0 0-1.91.7l-4.26-2.2c.11-.32.17-.66.17-1h-.17A3 3 0 1 0 7 17a3.05 3.05 0 0 0 1.91-.7l4.26 2.2A3 3 0 1 0 16 14Zm-9 2a1 1 0 1 1 0 2 1 1 0 0 1 0-2Zm9 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2Z" fill="currentColor"/>
+      </svg>
+    </button>
     <div id="shareMsg" class="msg" style="display:none"></div>
     ${safeUrls.map((u, i) => `
       <div class="imgbox">
@@ -805,7 +822,7 @@ function updateExportButtonState() {
       const { msg } = getEls();
       if (!msg) return;
       msg.style.display = 'block';
-      msg.textContent = text || 'この端末では「まとめて保存」ができません。下の画像を長押しして保存してください。';
+      msg.textContent = text || 'この端末/ブラウザでは共有が使えません。下の画像を長押しして保存してください。';
     }
 
     function clearMessage() {
@@ -819,58 +836,43 @@ function updateExportButtonState() {
       const { btn } = getEls();
       if (!btn) return;
 
-      // 押した瞬間に反応を出す（無反応UIを防ぐ）
+      // UI: 連打防止
       btn.disabled = true;
-      const prevText = btn.textContent;
-      btn.textContent = '共有を開いています…';
+      btn.setAttribute('aria-busy', 'true');
       clearMessage();
 
       try {
-        // Web Share APIが無い
         if (!navigator.share) {
-          showFailMessage('この端末/ブラウザでは「まとめて保存」ができません。下の画像を長押しして保存してください。');
+          showFailMessage('この端末/ブラウザでは共有が使えません。下の画像を長押しして保存してください。');
           return;
         }
 
         // opener から渡された File 配列を使う（押下後にfetchしない＝ユーザー操作扱いを切らさない）
         const files = (window.__PGLL_SHARE_FILES && Array.isArray(window.__PGLL_SHARE_FILES)) ? window.__PGLL_SHARE_FILES : null;
         if (!files || files.length === 0) {
-          showFailMessage('「まとめて保存」の準備に失敗しました。下の画像を長押しして保存してください。');
+          showFailMessage('共有する画像の準備に失敗しました。下の画像を長押しして保存してください。');
           return;
         }
 
-        // canShare は厳しすぎる端末があるので、ダメなら例外で拾う
-        // ただし明確に false の場合は即フォールバックする
-        try {
-          if (navigator.canShare && !navigator.canShare({ files })) {
-            showFailMessage('この端末では「まとめて保存」ができません。下の画像を長押しして保存してください。');
-            return;
-          }
-        } catch (_) {}
-
-        const SHARE_TIMEOUT_MS = 5000;
-        let timer;
-
-        const sharePromise = navigator.share({
+        // canShare は端末依存で厳しすぎることがあるので使わない（誤爆防止）
+        await navigator.share({
           files,
           title: 'PG LIVE LOG',
           text: '参戦履歴画像'
         });
 
-        const timeoutPromise = new Promise((_, reject) => {
-          timer = setTimeout(() => reject(new Error('share-timeout')), SHARE_TIMEOUT_MS);
-        });
-
-        await Promise.race([sharePromise, timeoutPromise]);
-        // 成功時はメッセージ不要（共有画面が出るはず）
+        // 共有が開けた/完了した場合は何も出さない（キャンセルもここで扱う）
       } catch (e) {
-        // キャンセルも含め「共有が開かなかった」場合は必ず文言を出す
-        showFailMessage('この端末では「まとめて保存」ができません。下の画像を長押しして保存してください。');
+        // ユーザーキャンセルはエラー表示しない
+        const name = (e && e.name) ? String(e.name) : '';
+        if (name === 'AbortError') return;
+
+        showFailMessage('共有できませんでした。下の画像を長押しして保存してください。');
       } finally {
         const { btn } = getEls();
         if (btn) {
           btn.disabled = false;
-          btn.textContent = prevText || 'まとめて保存';
+          btn.removeAttribute('aria-busy');
         }
       }
     }
@@ -892,13 +894,11 @@ function updateExportButtonState() {
       const fire = (e) => {
         try { e && e.preventDefault && e.preventDefault(); } catch (_) {}
         shareAll().catch(() => {
-          showFailMessage('この端末では「まとめて保存」ができません。下の画像を長押しして保存してください。');
+          showFailMessage('この端末/ブラウザでは共有が使えません。下の画像を長押しして保存してください。');
         });
       };
 
       btn.addEventListener('click', fire, { passive: false });
-      btn.addEventListener('touchend', fire, { passive: false });
-      btn.addEventListener('pointerup', fire, { passive: false });
     })();
 
     window.addEventListener('beforeunload', () => {
@@ -1866,7 +1866,6 @@ function resolveBackground(bgValue, name) {
   });
 
 });
-
 
 
 
