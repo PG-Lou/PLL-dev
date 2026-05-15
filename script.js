@@ -154,18 +154,40 @@ function createQrElement(text) {
     return d + t;
   }
 
+  // hidden:true の公演は、QR互換のためデータには残すが画面/出力には出さない
+  function isHiddenShow(show) {
+    return !!(show && show.hidden === true);
+  }
+
+  // JSON上の並びはQR index互換のため維持し、画面表示だけ日付順にする
+  function compareShowsForDisplay(a, b) {
+    const ad = String(a?.date || '');
+    const bd = String(b?.date || '');
+    if (ad !== bd) return ad.localeCompare(bd);
+
+    const timeOrder = { AM: 1, PM: 2 };
+    const at = timeOrder[a?.time] || 0;
+    const bt = timeOrder[b?.time] || 0;
+    return at - bt;
+  }
+
 
   function buildTinyIndex(liveData) {
     const list = [];
+    const appendList = [];
+
     liveData.forEach(live => {
       (live.years || []).forEach(y => {
         (y.shows || []).forEach(s => {
-          list.push(makeTinyId(s));
+          // qrAppend:true の新規追加公演は、既存QRのindexを壊さないためQR上だけ末尾に回す
+          const target = s && s.qrAppend === true ? appendList : list;
+          target.push(makeTinyId(s));
         });
       });
     });
-    __tinyIdList = list;
-    __tinyIdToIndex = new Map(list.map((id, i) => [id, i]));
+
+    __tinyIdList = list.concat(appendList);
+    __tinyIdToIndex = new Map(__tinyIdList.map((id, i) => [id, i]));
   }
 
   function setBit(bytes, i) {
@@ -542,6 +564,13 @@ function applyRestoredData(data) {
       content.hidden = true;
 
       live.years.forEach(y => {
+        const visibleShows = (y.shows || [])
+          .filter(s => !isHiddenShow(s))
+          .slice()
+          .sort(compareShowsForDisplay);
+
+        if (!visibleShows.length) return;
+
         const yearBlock = document.createElement('div');
 
         const yearTitle = document.createElement('div');
@@ -549,7 +578,7 @@ function applyRestoredData(data) {
         yearTitle.textContent = y.year;
         yearBlock.appendChild(yearTitle);
 
-        y.shows.forEach(s => {
+        visibleShows.forEach(s => {
           const label = document.createElement('label');
           label.className = 'show-item';
 
@@ -917,8 +946,10 @@ function updateExportButtonState() {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
   
-    return checked.map(cb => {
-      const data = JSON.parse(cb.dataset.show);
+    return checked
+      .map(cb => JSON.parse(cb.dataset.show))
+      .filter(data => !isHiddenShow(data.show))
+      .map(data => {
       const s = data.show;
   
       const time =
