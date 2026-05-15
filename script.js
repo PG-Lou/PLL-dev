@@ -1032,17 +1032,17 @@ if (bgValue === 'NEOMELO') {
          "radial-gradient(circle at 55% 40%, rgba(255,120,80,0.08) 0%, transparent 65%)";
 }
 
-// ライン：かなり暗めのくすみブルー
+// ライン：青みを少し戻したダークくすみブルー
 if (bgValue === 'LINE_BLUE') {
   return "linear-gradient(135deg," +
-         " #233241 0%," +
-         " #2c3d4d 28%," +
-         " #3a4d60 55%," +
-         " #55697d 82%," +
-         " #70859a 100%)," +
-         "radial-gradient(circle at 22% 18%, rgba(255,255,255,0.04) 0%, transparent 52%)," +
-         "radial-gradient(circle at 78% 82%, rgba(0,0,0,0.16) 0%, transparent 58%)";
-}
+         " #2b4258 0%," +
+         " #355069 28%," +
+         " #44627d 55%," +
+         " #5d7891 82%," +
+         " #7e97ad 100%)," +
+         "radial-gradient(circle at 22% 18%, rgba(255,255,255,0.05) 0%, transparent 52%)," +
+         "radial-gradient(circle at 78% 82%, rgba(10,20,35,0.14) 0%, transparent 58%)";
+} 
   
   // Rainbow：流行り寄り・ほんのりくすみ（くすませすぎない）
   if (bgValue === 'RAINBOW') {
