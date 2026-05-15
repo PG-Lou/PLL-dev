@@ -1018,6 +1018,30 @@ function resolveBackground(bgValue, name) {
            "#2f2f2f";
   }
 
+
+  // ネオメロドラマティック：くすみレッド / ジャケ写っぽい夕焼け感
+  if (bgValue === 'NEOMELO') {
+    return "linear-gradient(135deg," +
+           " #d68b86 0%," +
+           " #c77772 28%," +
+           " #b86563 52%," +
+           " #d4a29d 78%," +
+           " #efe1de 100%)," +
+           "radial-gradient(circle at 28% 22%, rgba(255,255,255,0.12) 0%, transparent 58%)," +
+           "radial-gradient(circle at 74% 76%, rgba(120,40,40,0.10) 0%, transparent 62%)";
+  }
+
+  // ライン：暗めのくすみブルー
+  if (bgValue === 'LINE_BLUE') {
+    return "linear-gradient(135deg," +
+           " #4d6175 0%," +
+           " #425466 32%," +
+           " #5c7084 60%," +
+           " #8a9aaa 100%)," +
+           "radial-gradient(circle at 20% 20%, rgba(255,255,255,0.06) 0%, transparent 55%)," +
+           "radial-gradient(circle at 78% 80%, rgba(20,30,40,0.12) 0%, transparent 60%)";
+  }
+
   // Rainbow：流行り寄り・ほんのりくすみ（くすませすぎない）
   if (bgValue === 'RAINBOW') {
     return "linear-gradient(135deg," +
